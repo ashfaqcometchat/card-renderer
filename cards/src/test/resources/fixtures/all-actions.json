@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "body": [
+    {
+      "type": "button", "id": "btn_1", "label": "Open",
+      "action": { "type": "openUrl", "url": "https://example.com", "openIn": "browser" }
+    },
+    {
+      "type": "button", "id": "btn_2", "label": "Copy",
+      "action": { "type": "copyToClipboard", "value": "copied text" }
+    },
+    {
+      "type": "button", "id": "btn_3", "label": "Download",
+      "action": { "type": "downloadFile", "url": "https://example.com/file.pdf", "filename": "doc.pdf" }
+    },
+    {
+      "type": "button", "id": "btn_4", "label": "API",
+      "action": { "type": "apiCall", "url": "https://api.example.com/action", "method": "POST" }
+    },
+    {
+      "type": "button", "id": "btn_5", "label": "Chat User",
+      "action": { "type": "chatWithUser", "uid": "user123" }
+    },
+    {
+      "type": "button", "id": "btn_6", "label": "Chat Group",
+      "action": { "type": "chatWithGroup", "guid": "group456" }
+    },
+    {
+      "type": "button", "id": "btn_7", "label": "Send",
+      "action": { "type": "sendMessage", "text": "Hello!", "receiverUid": "user123" }
+    },
+    {
+      "type": "button", "id": "btn_8", "label": "Call",
+      "action": { "type": "initiateCall", "callType": "video", "uid": "user123" }
+    },
+    {
+      "type": "button", "id": "btn_9", "label": "Custom",
+      "action": { "type": "customCallback", "callbackId": "my_callback" }
+    }
+  ],
+  "fallbackText": "Card with all action types"
+}

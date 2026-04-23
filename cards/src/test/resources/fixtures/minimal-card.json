@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "body": [
+    {
+      "type": "text",
+      "id": "txt_1",
+      "content": "Hello World"
+    }
+  ],
+  "fallbackText": "Hello World"
+}
