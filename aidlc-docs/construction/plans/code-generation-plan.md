@@ -36,17 +36,17 @@ All code goes in the `:cards` library module:
 
 ### Unit 2: Theme & Core Infrastructure (ENG-34365)
 
-- [ ] Step 2.1: Create CometChatCardDefaultTheme — all color tokens + typography scale
-- [ ] Step 2.2: Create CometChatCardThemeOverride data class with nullable fields
-- [ ] Step 2.3: Create CometChatCardResolvedTheme and CometChatCardThemeResolver — resolveColor, resolveUrl, resolveTheme, resolveEffectiveMode
-- [ ] Step 2.4: Create CometChatCardActionEmitter — emit, isValidAction
-- [ ] Step 2.5: Create CometChatCardLogger — log level filtering, android.util.Log backend
-- [ ] Step 2.6: Create CometChatCardElementRenderer interface (renderView + RenderComposable)
-- [ ] Step 2.7: Create CometChatCardElementRegistry — register, getRenderer, registerDefaults stub
-- [ ] Step 2.8: Create CometChatCardRenderContext — all fields, withDepth()
-- [ ] Step 2.9: Create CometChatCardLoadingStateManager — setLoading, isLoading, clearAll
-- [ ] Step 2.10: Unit tests for theme resolver, action emitter, logger, loading state manager
-- [ ] Step 2.11: Unit 2 summary documentation
+- [x] Step 2.1: Create CometChatCardDefaultTheme — all color tokens + typography scale
+- [x] Step 2.2: Create CometChatCardThemeOverride data class with nullable fields
+- [x] Step 2.3: Create CometChatCardResolvedTheme and CometChatCardThemeResolver — resolveColor, resolveUrl, resolveTheme, resolveEffectiveMode
+- [x] Step 2.4: Create CometChatCardActionEmitter — emit, isValidAction
+- [x] Step 2.5: Create CometChatCardLogger — log level filtering, android.util.Log backend
+- [x] Step 2.6: Create CometChatCardElementRenderer interface (renderView + RenderComposable)
+- [x] Step 2.7: Create CometChatCardElementRegistry — register, getRenderer, registerDefaults stub
+- [x] Step 2.8: Create CometChatCardRenderContext — all fields, withDepth()
+- [x] Step 2.9: Create CometChatCardLoadingStateManager — setLoading, isLoading, clearAll
+- [x] Step 2.10: Unit tests for theme resolver, action emitter, logger, loading state manager
+- [x] Step 2.11: Unit 2 summary documentation
 
 ### Unit 3: Content & Data Renderers (ENG-34366)
 
