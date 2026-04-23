@@ -80,13 +80,13 @@ All code goes in the `:cards` library module:
 
 ### Unit 5: Public API & Integration (ENG-34368)
 
-- [ ] Step 5.1: Update settings.gradle.kts to include `:cards` module
-- [ ] Step 5.2: Create CometChatCardView (FrameLayout) — setCardSchema, setThemeMode, setActionCallback, setThemeOverride, setLogLevel, setElementLoading, getContainerStyle, render pipeline, system theme observation
-- [ ] Step 5.3: Create CometChatCardComposable — @Composable entry point, isSystemInDarkTheme, onContainerStyle
-- [ ] Step 5.4: Create registry initialization function (registerDefaults with all 20 renderers)
-- [ ] Step 5.5: Error handling — fallbackText display, placeholder view, element-level try-catch
-- [ ] Step 5.6: Update :app module — add dependency on :cards, create demo activity
-- [ ] Step 5.7: Create shared test fixtures (13 JSON files)
-- [ ] Step 5.8: Integration tests — full card rendering pipeline
-- [ ] Step 5.9: Maven publish configuration in build.gradle.kts
-- [ ] Step 5.10: Unit 5 summary documentation
+- [x] Step 5.1: Update settings.gradle.kts to include `:cards` module
+- [x] Step 5.2: Create CometChatCardView (FrameLayout) — setCardSchema, setThemeMode, setActionCallback, setThemeOverride, setLogLevel, setElementLoading, getContainerStyle, render pipeline, system theme observation
+- [x] Step 5.3: Create CometChatCardComposable — @Composable entry point, isSystemInDarkTheme, onContainerStyle
+- [x] Step 5.4: Create registry initialization function (registerDefaults with all 20 renderers)
+- [x] Step 5.5: Error handling — fallbackText display, placeholder view, element-level try-catch
+- [x] Step 5.6: Update :app module — add dependency on :cards, create demo activity
+- [x] Step 5.7: Create shared test fixtures (13 JSON files)
+- [x] Step 5.8: Integration tests — full card rendering pipeline
+- [x] Step 5.9: Maven publish configuration in build.gradle.kts
+- [x] Step 5.10: Unit 5 summary documentation
