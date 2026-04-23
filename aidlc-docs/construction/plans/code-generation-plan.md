@@ -50,20 +50,20 @@ All code goes in the `:cards` library module:
 
 ### Unit 3: Content & Data Renderers (ENG-34366)
 
-- [ ] Step 3.1: Create TextElementRenderer (renderView + RenderComposable)
-- [ ] Step 3.2: Create ImageElementRenderer (Coil View + Compose, custom shimmer, fallback)
-- [ ] Step 3.3: Create IconElementRenderer (Coil, color tinting)
-- [ ] Step 3.4: Create AvatarElementRenderer (image or fallback initials)
-- [ ] Step 3.5: Create BadgeElementRenderer
-- [ ] Step 3.6: Create DividerElementRenderer
-- [ ] Step 3.7: Create SpacerElementRenderer
-- [ ] Step 3.8: Create ChipElementRenderer
-- [ ] Step 3.9: Create ProgressBarElementRenderer (value clamping 0-100)
-- [ ] Step 3.10: Create CodeBlockElementRenderer (monospace, language label)
-- [ ] Step 3.11: Create MarkdownElementRenderer (Html.fromHtml + AnnotatedString, link tap → openUrl)
-- [ ] Step 3.12: Create TableElementRenderer (headers, rows, striped, borders)
-- [ ] Step 3.13: Unit tests for all 12 renderers
-- [ ] Step 3.14: Unit 3 summary documentation
+- [x] Step 3.1: Create TextElementRenderer (renderView + RenderComposable)
+- [x] Step 3.2: Create ImageElementRenderer (Coil View + Compose, custom shimmer, fallback)
+- [x] Step 3.3: Create IconElementRenderer (Coil, color tinting)
+- [x] Step 3.4: Create AvatarElementRenderer (image or fallback initials)
+- [x] Step 3.5: Create BadgeElementRenderer
+- [x] Step 3.6: Create DividerElementRenderer
+- [x] Step 3.7: Create SpacerElementRenderer
+- [x] Step 3.8: Create ChipElementRenderer
+- [x] Step 3.9: Create ProgressBarElementRenderer (value clamping 0-100)
+- [x] Step 3.10: Create CodeBlockElementRenderer (monospace, language label)
+- [x] Step 3.11: Create MarkdownElementRenderer (Html.fromHtml + AnnotatedString, link tap → openUrl)
+- [x] Step 3.12: Create TableElementRenderer (headers, rows, striped, borders)
+- [x] Step 3.13: Unit tests for all 12 renderers
+- [x] Step 3.14: Unit 3 summary documentation
 
 ### Unit 4: Layout & Interactive Renderers (ENG-34367)
 
