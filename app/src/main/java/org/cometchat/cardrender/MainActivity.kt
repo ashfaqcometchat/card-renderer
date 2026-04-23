@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.cometchat.cards.CometChatCardComposable
 import com.cometchat.cards.models.CometChatCardLogLevel
 import com.cometchat.cards.models.CometChatCardThemeMode
+import com.cometchat.cards.models.type
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -16,7 +16,6 @@ import kotlinx.serialization.json.jsonPrimitive
 @Serializable
 sealed interface CometChatCardElement {
     val id: String
-    val type: String
 }
 
 // --- Content Elements (11) ---
@@ -25,7 +24,6 @@ sealed interface CometChatCardElement {
 @SerialName("text")
 data class CometChatCardTextElement(
     override val id: String,
-    override val type: String = "text",
     val content: String,
     val variant: String? = null,
     val color: CometChatCardColorOrHex? = null,
@@ -39,7 +37,6 @@ data class CometChatCardTextElement(
 @SerialName("image")
 data class CometChatCardImageElement(
     override val id: String,
-    override val type: String = "image",
     val url: CometChatCardColorOrHex,
     val altText: String? = null,
     val fit: String? = null,
@@ -53,7 +50,6 @@ data class CometChatCardImageElement(
 @SerialName("icon")
 data class CometChatCardIconElement(
     override val id: String,
-    override val type: String = "icon",
     val name: CometChatCardColorOrHex,
     val size: Int? = null,
     val color: CometChatCardColorOrHex? = null,
@@ -67,7 +63,6 @@ data class CometChatCardIconElement(
 @SerialName("avatar")
 data class CometChatCardAvatarElement(
     override val id: String,
-    override val type: String = "avatar",
     val imageUrl: String? = null,
     val fallbackInitials: String? = null,
     val size: Int? = null,
@@ -81,7 +76,6 @@ data class CometChatCardAvatarElement(
 @SerialName("badge")
 data class CometChatCardBadgeElement(
     override val id: String,
-    override val type: String = "badge",
     val text: String,
     val color: CometChatCardColorOrHex? = null,
     val backgroundColor: CometChatCardColorOrHex? = null,
@@ -96,7 +90,6 @@ data class CometChatCardBadgeElement(
 @SerialName("divider")
 data class CometChatCardDividerElement(
     override val id: String,
-    override val type: String = "divider",
     val color: CometChatCardColorOrHex? = null,
     val thickness: Int? = null,
     val margin: Int? = null
@@ -106,7 +99,6 @@ data class CometChatCardDividerElement(
 @SerialName("spacer")
 data class CometChatCardSpacerElement(
     override val id: String,
-    override val type: String = "spacer",
     val height: Int
 ) : CometChatCardElement
 
@@ -114,7 +106,6 @@ data class CometChatCardSpacerElement(
 @SerialName("chip")
 data class CometChatCardChipElement(
     override val id: String,
-    override val type: String = "chip",
     val text: String,
     val color: CometChatCardColorOrHex? = null,
     val icon: CometChatCardColorOrHex? = null,
@@ -130,7 +121,6 @@ data class CometChatCardChipElement(
 @SerialName("progressBar")
 data class CometChatCardProgressBarElement(
     override val id: String,
-    override val type: String = "progressBar",
     val value: Int,
     val color: CometChatCardColorOrHex? = null,
     val trackColor: CometChatCardColorOrHex? = null,
@@ -145,7 +135,6 @@ data class CometChatCardProgressBarElement(
 @SerialName("codeBlock")
 data class CometChatCardCodeBlockElement(
     override val id: String,
-    override val type: String = "codeBlock",
     val content: String,
     val language: String? = null,
     val backgroundColor: CometChatCardColorOrHex? = null,
@@ -161,7 +150,6 @@ data class CometChatCardCodeBlockElement(
 @SerialName("markdown")
 data class CometChatCardMarkdownElement(
     override val id: String,
-    override val type: String = "markdown",
     val content: String,
     val baseFontSize: Int? = null,
     val linkColor: CometChatCardColorOrHex? = null,
@@ -175,7 +163,6 @@ data class CometChatCardMarkdownElement(
 @SerialName("row")
 data class CometChatCardRowElement(
     override val id: String,
-    override val type: String = "row",
     val items: List<CometChatCardElement>,
     val gap: Int? = null,
     val align: String? = null,
@@ -194,7 +181,6 @@ data class CometChatCardRowElement(
 @SerialName("column")
 data class CometChatCardColumnElement(
     override val id: String,
-    override val type: String = "column",
     val items: List<CometChatCardElement>,
     val gap: Int? = null,
     val align: String? = null,
@@ -209,7 +195,6 @@ data class CometChatCardColumnElement(
 @SerialName("grid")
 data class CometChatCardGridElement(
     override val id: String,
-    override val type: String = "grid",
     val items: List<CometChatCardElement>,
     val columns: Int? = null,
     val gap: Int? = null,
@@ -263,7 +248,6 @@ object CometChatCardAccordionHeaderSerializer : KSerializer<CometChatCardAccordi
 @SerialName("accordion")
 data class CometChatCardAccordionElement(
     override val id: String,
-    override val type: String = "accordion",
     val header: CometChatCardAccordionHeader,
     val headerIcon: CometChatCardColorOrHex? = null,
     val body: List<CometChatCardElement>,
@@ -285,7 +269,6 @@ data class CometChatCardTabItem(
 @SerialName("tabs")
 data class CometChatCardTabsElement(
     override val id: String,
-    override val type: String = "tabs",
     val tabs: List<CometChatCardTabItem>,
     val defaultActiveTab: Int? = null,
     val tabAlign: String? = null,
@@ -300,7 +283,6 @@ data class CometChatCardTabsElement(
 @SerialName("button")
 data class CometChatCardButtonElement(
     override val id: String,
-    override val type: String = "button",
     val label: String,
     val action: CometChatCardAction? = null,
     val variant: String? = null,
@@ -322,7 +304,6 @@ data class CometChatCardButtonElement(
 @SerialName("iconButton")
 data class CometChatCardIconButtonElement(
     override val id: String,
-    override val type: String = "iconButton",
     val icon: CometChatCardColorOrHex,
     val action: CometChatCardAction? = null,
     val size: Int? = null,
@@ -335,7 +316,6 @@ data class CometChatCardIconButtonElement(
 @SerialName("link")
 data class CometChatCardLinkElement(
     override val id: String,
-    override val type: String = "link",
     val text: String,
     val action: CometChatCardAction? = null,
     val color: CometChatCardColorOrHex? = null,
@@ -349,7 +329,6 @@ data class CometChatCardLinkElement(
 @SerialName("table")
 data class CometChatCardTableElement(
     override val id: String,
-    override val type: String = "table",
     val columns: List<String>,
     val rows: List<List<String>>,
     val stripedRows: Boolean? = null,
@@ -360,3 +339,26 @@ data class CometChatCardTableElement(
     val stripedRowColor: CometChatCardColorOrHex? = null,
     val borderColor: CometChatCardColorOrHex? = null
 ) : CometChatCardElement
+
+val CometChatCardElement.type: String get() = when (this) {
+    is CometChatCardTextElement -> "text"
+    is CometChatCardImageElement -> "image"
+    is CometChatCardIconElement -> "icon"
+    is CometChatCardAvatarElement -> "avatar"
+    is CometChatCardBadgeElement -> "badge"
+    is CometChatCardDividerElement -> "divider"
+    is CometChatCardSpacerElement -> "spacer"
+    is CometChatCardChipElement -> "chip"
+    is CometChatCardProgressBarElement -> "progressBar"
+    is CometChatCardCodeBlockElement -> "codeBlock"
+    is CometChatCardMarkdownElement -> "markdown"
+    is CometChatCardRowElement -> "row"
+    is CometChatCardColumnElement -> "column"
+    is CometChatCardGridElement -> "grid"
+    is CometChatCardAccordionElement -> "accordion"
+    is CometChatCardTabsElement -> "tabs"
+    is CometChatCardButtonElement -> "button"
+    is CometChatCardIconButtonElement -> "iconButton"
+    is CometChatCardLinkElement -> "link"
+    is CometChatCardTableElement -> "table"
+}

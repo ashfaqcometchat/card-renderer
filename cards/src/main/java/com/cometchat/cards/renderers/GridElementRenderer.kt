@@ -19,6 +19,7 @@ import com.cometchat.cards.core.CometChatCardElementRenderer
 import com.cometchat.cards.core.CometChatCardRenderContext
 import com.cometchat.cards.models.CometChatCardElement
 import com.cometchat.cards.models.CometChatCardGridElement
+import com.cometchat.cards.models.type
 import com.cometchat.cards.theme.CometChatCardThemeResolver
 
 class GridElementRenderer : CometChatCardElementRenderer {
