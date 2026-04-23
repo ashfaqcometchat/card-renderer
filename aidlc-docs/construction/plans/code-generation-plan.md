@@ -67,16 +67,16 @@ All code goes in the `:cards` library module:
 
 ### Unit 4: Layout & Interactive Renderers (ENG-34367)
 
-- [ ] Step 4.1: Create RowElementRenderer (horizontal, scrollable/peek/snap, wrap)
-- [ ] Step 4.2: Create ColumnElementRenderer (vertical, align)
-- [ ] Step 4.3: Create GridElementRenderer (multi-column)
-- [ ] Step 4.4: Create AccordionElementRenderer (expand/collapse, dual header, animation)
-- [ ] Step 4.5: Create TabsElementRenderer (tab switching, content panels)
-- [ ] Step 4.6: Create ButtonElementRenderer (4 variants, icon, size, fullWidth, disabled, loading)
-- [ ] Step 4.7: Create IconButtonElementRenderer (action wiring, loading)
-- [ ] Step 4.8: Create LinkElementRenderer (action wiring)
-- [ ] Step 4.9: Unit tests for all 8 renderers + recursive rendering + depth enforcement
-- [ ] Step 4.10: Unit 4 summary documentation
+- [x] Step 4.1: Create RowElementRenderer (horizontal, scrollable/peek/snap, wrap)
+- [x] Step 4.2: Create ColumnElementRenderer (vertical, align)
+- [x] Step 4.3: Create GridElementRenderer (multi-column)
+- [x] Step 4.4: Create AccordionElementRenderer (expand/collapse, dual header, animation)
+- [x] Step 4.5: Create TabsElementRenderer (tab switching, content panels)
+- [x] Step 4.6: Create ButtonElementRenderer (4 variants, icon, size, fullWidth, disabled, loading)
+- [x] Step 4.7: Create IconButtonElementRenderer (action wiring, loading)
+- [x] Step 4.8: Create LinkElementRenderer (action wiring)
+- [x] Step 4.9: Unit tests for all 8 renderers + recursive rendering + depth enforcement
+- [x] Step 4.10: Unit 4 summary documentation
 
 ### Unit 5: Public API & Integration (ENG-34368)
 
