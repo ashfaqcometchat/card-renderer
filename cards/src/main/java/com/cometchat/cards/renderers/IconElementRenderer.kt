@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil3.load
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -62,9 +63,7 @@ class IconElementRenderer : CometChatCardElementRenderer {
         container.addView(imageView)
 
         if (url != null) {
-            val request = coil3.request.ImageRequest.Builder(context)
-                .data(url).crossfade(true).target(imageView).build()
-            coil3.SingletonImageLoader.get(context).enqueue(request)
+            imageView.load(url) { crossfade(true) }
         }
 
         return container

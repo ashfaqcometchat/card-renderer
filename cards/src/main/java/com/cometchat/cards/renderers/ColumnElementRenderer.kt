@@ -95,8 +95,7 @@ class ColumnElementRenderer : CometChatCardElementRenderer {
             for (child in el.items) {
                 val renderer = renderContext.registry.getRenderer(child.type)
                 if (renderer != null) {
-                    try { renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1)) }
-                    catch (e: Exception) { renderContext.logger.error("Renderer exception for ${child.type}: ${e.message}") }
+                    renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
                 } else {
                     renderContext.logger.warning("Unknown element type: ${child.type}, id: ${child.id}")
                 }

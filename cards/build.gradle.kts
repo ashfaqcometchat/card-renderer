@@ -1,9 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.compiler)
-    `maven-publish`
 }
 
 android {
@@ -62,18 +60,4 @@ dependencies {
     testImplementation(libs.kotest.property)
     testImplementation(libs.robolectric)
     testImplementation(libs.roborazzi)
-}
-
-publishing {
-    publications {
-        register<MavenPublication>("release") {
-            groupId = "com.cometchat"
-            artifactId = "cards"
-            version = "1.0.0"
-
-            afterEvaluate {
-                from(components["release"])
-            }
-        }
-    }
 }

@@ -21,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.load
+import coil3.request.crossfade
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.cometchat.cards.actions.CometChatCardActionEmitter
@@ -108,7 +110,7 @@ class ButtonElementRenderer : CometChatCardElementRenderer {
                     scaleType = ImageView.ScaleType.FIT_CENTER
                 }
                 row.addView(iconView)
-                coil3.SingletonImageLoader.get(context).enqueue(coil3.request.ImageRequest.Builder(context).data(iconUrl).target(iconView).build())
+                iconView.load(iconUrl) { crossfade(true) }
             }
 
             val effectiveTextColor = when (variant) {
@@ -130,7 +132,7 @@ class ButtonElementRenderer : CometChatCardElementRenderer {
                     scaleType = ImageView.ScaleType.FIT_CENTER
                 }
                 row.addView(iconView)
-                coil3.SingletonImageLoader.get(context).enqueue(coil3.request.ImageRequest.Builder(context).data(iconUrl).target(iconView).build())
+                iconView.load(iconUrl) { crossfade(true) }
             }
         }
 

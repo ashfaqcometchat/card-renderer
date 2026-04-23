@@ -153,10 +153,7 @@ class AccordionElementRenderer : CometChatCardElementRenderer {
                         Row {
                             for (child in header.items) {
                                 val renderer = renderContext.registry.getRenderer(child.type)
-                                renderer?.let {
-                                    try { it.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1)) }
-                                    catch (_: Exception) {}
-                                }
+                                renderer?.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
                             }
                         }
                     }
@@ -168,10 +165,7 @@ class AccordionElementRenderer : CometChatCardElementRenderer {
                 Column {
                     for (child in el.body) {
                         val renderer = renderContext.registry.getRenderer(child.type)
-                        if (renderer != null) {
-                            try { renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1)) }
-                            catch (e: Exception) { renderContext.logger.error("Renderer exception: ${e.message}") }
-                        }
+                        renderer?.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
                     }
                 }
             }

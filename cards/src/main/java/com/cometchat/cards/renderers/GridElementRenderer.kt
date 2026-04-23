@@ -94,8 +94,7 @@ class GridElementRenderer : CometChatCardElementRenderer {
             items(el.items) { child ->
                 val renderer = renderContext.registry.getRenderer(child.type)
                 if (renderer != null) {
-                    try { renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1)) }
-                    catch (e: Exception) { renderContext.logger.error("Renderer exception for ${child.type}: ${e.message}") }
+                    renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
                 }
             }
         }

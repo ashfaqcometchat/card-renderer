@@ -151,10 +151,7 @@ class TabsElementRenderer : CometChatCardElementRenderer {
                 Column {
                     for (child in content) {
                         val renderer = renderContext.registry.getRenderer(child.type)
-                        if (renderer != null) {
-                            try { renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1)) }
-                            catch (e: Exception) { renderContext.logger.error("Renderer exception: ${e.message}") }
-                        }
+                        renderer?.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
                     }
                 }
             }

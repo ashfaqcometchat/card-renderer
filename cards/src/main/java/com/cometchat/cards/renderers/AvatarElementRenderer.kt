@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.load
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -59,9 +60,7 @@ class AvatarElementRenderer : CometChatCardElementRenderer {
                 scaleType = ImageView.ScaleType.CENTER_CROP
             }
             container.addView(imageView)
-            val request = coil3.request.ImageRequest.Builder(context)
-                .data(el.imageUrl).crossfade(true).target(imageView).build()
-            coil3.SingletonImageLoader.get(context).enqueue(request)
+            imageView.load(el.imageUrl) { crossfade(true) }
         } else if (el.fallbackInitials != null) {
             val textView = TextView(context).apply {
                 layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)

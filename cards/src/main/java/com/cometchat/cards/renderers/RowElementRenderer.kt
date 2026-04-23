@@ -49,12 +49,14 @@ class RowElementRenderer : CometChatCardElementRenderer {
                 try {
                     val childView = renderer.renderView(context, child, renderContext.withDepth(renderContext.depth + 1))
                     if (index > 0) {
-                        (childView.layoutParams as? ViewGroup.MarginLayoutParams)?.marginStart = (gap * density).toInt()
-                            ?: run {
-                                childView.layoutParams = LinearLayout.LayoutParams(
-                                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
-                                ).apply { marginStart = (gap * density).toInt() }
-                            }
+                        val lp = childView.layoutParams as? ViewGroup.MarginLayoutParams
+                        if (lp != null) {
+                            lp.marginStart = (gap * density).toInt()
+                        } else {
+                            childView.layoutParams = LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                            ).apply { marginStart = (gap * density).toInt() }
+                        }
                     }
                     row.addView(childView)
                 } catch (e: Exception) {
@@ -103,11 +105,7 @@ class RowElementRenderer : CometChatCardElementRenderer {
             for (child in el.items) {
                 val renderer = renderContext.registry.getRenderer(child.type)
                 if (renderer != null) {
-                    try {
-                        renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
-                    } catch (e: Exception) {
-                        renderContext.logger.error("Renderer exception for ${child.type}: ${e.message}")
-                    }
+                    renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
                 } else {
                     renderContext.logger.warning("Unknown element type: ${child.type}, id: ${child.id}")
                 }

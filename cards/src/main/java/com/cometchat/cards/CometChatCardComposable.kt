@@ -79,11 +79,7 @@ fun CometChatCardComposable(
         for (element in schema.body) {
             val renderer = registry.getRenderer(element.type)
             if (renderer != null) {
-                try {
-                    renderer.RenderComposable(element, renderContext)
-                } catch (e: Exception) {
-                    CometChatCardLogger.error("Renderer exception for ${element.type}: ${e.message}")
-                }
+                renderer.RenderComposable(element, renderContext)
             } else {
                 CometChatCardLogger.warning("Skipping unknown element type: ${element.type}, id: ${element.id}")
             }

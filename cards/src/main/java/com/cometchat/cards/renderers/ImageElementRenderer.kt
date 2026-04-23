@@ -22,6 +22,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.load
 import coil3.compose.AsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -65,12 +66,7 @@ class ImageElementRenderer : CometChatCardElementRenderer {
         container.addView(imageView)
 
         if (url != null) {
-            val request = coil3.request.ImageRequest.Builder(context)
-                .data(url)
-                .crossfade(true)
-                .target(imageView)
-                .build()
-            coil3.SingletonImageLoader.get(context).enqueue(request)
+            imageView.load(url) { crossfade(true) }
         }
 
         applyPadding(container, el.padding)

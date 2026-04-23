@@ -1,0 +1,14 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/admin/Ashfaq/Android/card-renderer-android/cards/src/main/AndroidManifest.xml:2:1-13
+INJECTED from /Users/admin/Ashfaq/Android/card-renderer-android/cards/src/main/AndroidManifest.xml:2:1-13
+	package
+		INJECTED from /Users/admin/Ashfaq/Android/card-renderer-android/cards/src/main/AndroidManifest.xml
+uses-sdk
+INJECTED from /Users/admin/Ashfaq/Android/card-renderer-android/cards/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Users/admin/Ashfaq/Android/card-renderer-android/cards/src/main/AndroidManifest.xml
+INJECTED from /Users/admin/Ashfaq/Android/card-renderer-android/cards/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /Users/admin/Ashfaq/Android/card-renderer-android/cards/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /Users/admin/Ashfaq/Android/card-renderer-android/cards/src/main/AndroidManifest.xml

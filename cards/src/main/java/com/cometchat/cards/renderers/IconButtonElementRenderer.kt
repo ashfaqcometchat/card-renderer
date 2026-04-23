@@ -22,6 +22,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil3.load
+import coil3.request.crossfade
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.cometchat.cards.actions.CometChatCardActionEmitter
@@ -73,9 +75,7 @@ class IconButtonElementRenderer : CometChatCardElementRenderer {
                 tintColor?.let { runCatching { setColorFilter(Color.parseColor(it), PorterDuff.Mode.SRC_IN) } }
             }
             container.addView(imageView)
-            coil3.SingletonImageLoader.get(context).enqueue(
-                coil3.request.ImageRequest.Builder(context).data(iconUrl).target(imageView).build()
-            )
+            imageView.load(iconUrl) { crossfade(true) }
         }
 
         return container

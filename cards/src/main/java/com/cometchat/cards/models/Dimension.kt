@@ -28,13 +28,13 @@ object CometChatCardDimensionSerializer : KSerializer<CometChatCardDimension> {
         val jsonDecoder = decoder as JsonDecoder
         val element = jsonDecoder.decodeJsonElement().jsonPrimitive
         return when {
-            element.intOrNull != null -> CometChatCardDimension.Dp(element.int)
+            element.intOrNull != null -> CometChatCardDimension.Dp(element.intOrNull!!)
             element.isString && element.content == "auto" -> CometChatCardDimension.Auto
             element.isString && element.content.endsWith("%") -> {
                 val pct = element.content.removeSuffix("%").toFloatOrNull() ?: 0f
                 CometChatCardDimension.Percent(pct)
             }
-            element.floatOrNull != null -> CometChatCardDimension.Dp(element.float.toInt())
+            element.floatOrNull != null -> CometChatCardDimension.Dp(element.floatOrNull!!.toInt())
             else -> CometChatCardDimension.Auto
         }
     }
