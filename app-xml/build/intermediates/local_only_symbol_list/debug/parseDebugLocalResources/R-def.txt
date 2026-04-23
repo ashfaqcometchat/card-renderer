@@ -1,0 +1,25 @@
+R_DEF: Internal format may change without notice
+local
+color md_theme_error
+color md_theme_onPrimary
+color md_theme_onPrimaryContainer
+color md_theme_onSurface
+color md_theme_primary
+color md_theme_primaryContainer
+color md_theme_surface
+drawable edit_text_background
+id btnDelete
+id btnRender
+id cardContainer
+id editJsonInput
+id frameCardView
+id frameMiniPreview
+id main
+id recyclerHistory
+id toolbar
+id txtHistoryHeader
+id txtJsonSnippet
+layout activity_main
+layout activity_preview
+layout item_history
+style Theme.CardsXmlDemo

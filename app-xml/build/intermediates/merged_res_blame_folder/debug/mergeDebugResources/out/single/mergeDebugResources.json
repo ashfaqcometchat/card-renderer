@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "org.cometchat.cardrender.xml.app-xml-debug-50:/layout_activity_main.xml.flat",
+        "source": "org.cometchat.cardrender.xml.app-xml-main-52:/layout/activity_main.xml"
+    },
+    {
+        "merged": "org.cometchat.cardrender.xml.app-xml-debug-50:/drawable_edit_text_background.xml.flat",
+        "source": "org.cometchat.cardrender.xml.app-xml-main-52:/drawable/edit_text_background.xml"
+    },
+    {
+        "merged": "org.cometchat.cardrender.xml.app-xml-debug-50:/layout_activity_preview.xml.flat",
+        "source": "org.cometchat.cardrender.xml.app-xml-main-52:/layout/activity_preview.xml"
+    },
+    {
+        "merged": "org.cometchat.cardrender.xml.app-xml-debug-50:/layout_item_history.xml.flat",
+        "source": "org.cometchat.cardrender.xml.app-xml-main-52:/layout/item_history.xml"
+    }
+]

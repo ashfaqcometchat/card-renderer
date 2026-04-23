@@ -23,5 +23,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "card-renderer-android"
-include(":app")
+include(":app-compose")
+include(":app-xml")
 include(":cards")

@@ -1,0 +1,7 @@
+org.cometchat.cardrender.compose.app-compose-pngs-0 /Users/admin/Ashfaq/Android/card-renderer-android/app-compose/build/generated/res/pngs/debug
+org.cometchat.cardrender.compose.app-compose-updated_navigation_xml-1 /Users/admin/Ashfaq/Android/card-renderer-android/app-compose/build/generated/updated_navigation_xml/debug
+org.cometchat.cardrender.compose.app-compose-packageDebugResources-2 /Users/admin/Ashfaq/Android/card-renderer-android/app-compose/build/intermediates/incremental/debug/packageDebugResources/merged.dir
+org.cometchat.cardrender.compose.app-compose-packageDebugResources-3 /Users/admin/Ashfaq/Android/card-renderer-android/app-compose/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
+org.cometchat.cardrender.compose.app-compose-debug-4 /Users/admin/Ashfaq/Android/card-renderer-android/app-compose/build/intermediates/merged_res/debug/mergeDebugResources
+org.cometchat.cardrender.compose.app-compose-debug-5 /Users/admin/Ashfaq/Android/card-renderer-android/app-compose/src/debug/res
+org.cometchat.cardrender.compose.app-compose-main-6 /Users/admin/Ashfaq/Android/card-renderer-android/app-compose/src/main/res

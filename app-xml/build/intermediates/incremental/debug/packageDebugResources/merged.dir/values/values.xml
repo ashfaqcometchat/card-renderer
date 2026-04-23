@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="md_theme_error">#B3261E</color>
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_onPrimaryContainer">#21005D</color>
+    <color name="md_theme_onSurface">#1C1B1F</color>
+    <color name="md_theme_primary">#6750A4</color>
+    <color name="md_theme_primaryContainer">#EADDFF</color>
+    <color name="md_theme_surface">#FFFBFE</color>
+    <style name="Theme.CardsXmlDemo" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/md_theme_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_onPrimaryContainer</item>
+        <item name="colorSurface">@color/md_theme_surface</item>
+        <item name="colorOnSurface">@color/md_theme_onSurface</item>
+    </style>
+</resources>

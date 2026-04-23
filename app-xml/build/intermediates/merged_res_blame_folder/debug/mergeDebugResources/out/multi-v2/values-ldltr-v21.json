@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "org.cometchat.cardrender.xml.app-xml-mergeDebugResources-48:/values-ldltr-v21/values-ldltr-v21.xml",
+            "map": [
+                {
+                    "source": "/Users/admin/.gradle/caches/9.3.1/transforms/70210af8cd1ba1911f5b5b4de14cd60b/transformed/appcompat-1.7.1/res/values-ldltr-v21/values-ldltr-v21.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "112",
+                        "endOffsets": "163"
+                    }
+                }
+            ]
+        }
+    ]
+}
