@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -112,15 +113,21 @@ fun HomeScreen(
 
             if (history.isNotEmpty()) {
                 item {
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     Text("Previously Rendered", style = MaterialTheme.typography.titleMedium)
-                }
-                items(history, key = { it.hashCode() }) { json ->
-                    HistoryCard(
-                        json = json,
-                        onClick = { onHistoryItemClick(json) },
-                        onDelete = { onDeleteHistoryItem(json) }
-                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(horizontal = 4.dp)
+                    ) {
+                        items(history, key = { it.hashCode() }) { json ->
+                            HistoryCard(
+                                json = json,
+                                onClick = { onHistoryItemClick(json) },
+                                onDelete = { onDeleteHistoryItem(json) }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -131,21 +138,18 @@ fun HomeScreen(
 private fun HistoryCard(json: String, onClick: () -> Unit, onDelete: () -> Unit) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
+            .width(280.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Box {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 200.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-                    .padding(8.dp)
+                    .padding(12.dp)
             ) {
                 CometChatCardComposable(
                     cardJson = json,
@@ -154,30 +158,18 @@ private fun HistoryCard(json: String, onClick: () -> Unit, onDelete: () -> Unit)
                     onAction = {}
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            IconButton(
+                onClick = onDelete,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(32.dp)
             ) {
-                Text(
-                    text = json.take(80).replace("\n", " ") + "...",
-                    style = MaterialTheme.typography.bodySmall,
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 10.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.weight(1f)
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = "Delete",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(16.dp)
                 )
-                IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "Delete",
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
             }
         }
     }

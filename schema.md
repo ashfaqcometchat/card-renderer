@@ -1,0 +1,1491 @@
+# Schema
+
+Last updated: April 21, 2026 — reduced actions from 17 to 9 (removed openPage, navigateToScreen, deepLink, prefillMessage, share, addToCalendar, openMap, dismissBubble). Colors are now hex only — removed theme placeholder support from colorValue. Previous update: added required `id` field (string, unique across all elements in the bubble) to all 20 element definitions. Earlier: removed 9 elements (rating, mapThumbnail, videoThumbnail, qrCode, countdownTimer, toggle, keyValue, tagList, stat), reducing from 29 to 20 elements. Earlier: added `backgroundColor`, `borderRadius`, `borderColor`, `borderWidth` to layout elements (row, column, grid).
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema.cometchat.com/card/v1.0",
+  "title": "CometChat Card Message Schema",
+  "description": "Schema for rich, interactive message cards rendered natively by CometChat UI Kits. Used by the Dashboard Card Builder, external developers via API, and AI Agents for structured message generation. Data placeholders ({{variable}}) must be resolved before sending \u2014 the backend passes JSON through as-is.",
+  "type": "object",
+  "required": [
+    "version",
+    "body",
+    "fallbackText"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Schema version. Always '1.0' for this release."
+    },
+    "body": {
+      "type": "array",
+      "description": "Ordered list of elements rendered top-to-bottom (vertical stack). This is always vertical. Use 'row' for horizontal, 'grid' for grid, or 'carousel' for scrollable horizontal layout.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/element"
+      }
+    },
+    "style": {
+      "$ref": "#/definitions/cardStyle"
+    },
+    "fallbackText": {
+      "type": "string",
+      "description": "Plain text shown on older UI Kit versions that cannot render cards. Required for graceful degradation."
+    }
+  },
+  "definitions": {
+    "padding": {
+      "description": "Padding. Single number applies to all sides, or specify per-side.",
+      "oneOf": [
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "type": "object",
+          "properties": {
+            "top": {
+              "type": "number",
+              "minimum": 0
+            },
+            "right": {
+              "type": "number",
+              "minimum": 0
+            },
+            "bottom": {
+              "type": "number",
+              "minimum": 0
+            },
+            "left": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "sizeOrPercentage": {
+      "description": "Size in pixels (number) or percentage string (e.g. '50%').",
+      "oneOf": [
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "type": "string",
+          "pattern": "^\\d+(\\.\\d+)?%$"
+        }
+      ]
+    },
+    "colorValue": {
+      "type": "object",
+      "description": "Color value with explicit light and dark mode hex values. Both are required. Use the same value for both if the color doesn't change between modes. Omit the property entirely for transparent/default.",
+      "required": ["light", "dark"],
+      "additionalProperties": false,
+      "properties": {
+        "light": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$",
+          "description": "6-digit hex color for light mode."
+        },
+        "dark": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$",
+          "description": "6-digit hex color for dark mode."
+        }
+      }
+    },
+    "action": {
+      "description": "An action triggered by user interaction (button tap, link click, toggle change).",
+      "oneOf": [
+        {
+          "type": "object",
+          "title": "openUrl",
+          "required": [
+            "type",
+            "url"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "openUrl"
+            },
+            "url": {
+              "type": "string",
+              "description": "URL to open. Supports {{placeholder}}."
+            },
+            "openIn": {
+              "type": "string",
+              "enum": [
+                "browser",
+                "webview"
+              ],
+              "default": "browser"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "chatWithUser",
+          "required": [
+            "type",
+            "uid"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "chatWithUser"
+            },
+            "uid": {
+              "type": "string",
+              "description": "CometChat user uid."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "chatWithGroup",
+          "required": [
+            "type",
+            "guid"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "chatWithGroup"
+            },
+            "guid": {
+              "type": "string",
+              "description": "CometChat group guid."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "sendMessage",
+          "required": [
+            "type",
+            "text"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "sendMessage"
+            },
+            "text": {
+              "type": "string"
+            },
+            "receiverUid": {
+              "type": "string",
+              "description": "Send to a specific user. If omitted along with receiverGuid, sends in the current conversation."
+            },
+            "receiverGuid": {
+              "type": "string",
+              "description": "Send to a specific group. If omitted along with receiverUid, sends in the current conversation."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "copyToClipboard",
+          "required": [
+            "type",
+            "value"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "copyToClipboard"
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "downloadFile",
+          "required": [
+            "type",
+            "url"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "downloadFile"
+            },
+            "url": {
+              "type": "string"
+            },
+            "filename": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "initiateCall",
+          "required": [
+            "type",
+            "callType"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "initiateCall"
+            },
+            "uid": {
+              "type": "string",
+              "description": "User uid for 1:1 call."
+            },
+            "guid": {
+              "type": "string",
+              "description": "Group guid for group call."
+            },
+            "callType": {
+              "type": "string",
+              "enum": [
+                "audio",
+                "video"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "apiCall",
+          "required": [
+            "type",
+            "url"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "apiCall"
+            },
+            "url": {
+              "type": "string"
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+              ],
+              "default": "POST"
+            },
+            "headers": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "body": {
+              "type": "object"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "customCallback",
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "customCallback"
+            }
+          }
+        }
+      ]
+    },
+    "element": {
+      "description": "A UI element inside a card. Discriminated by the 'type' field.",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/elements/text"
+        },
+        {
+          "$ref": "#/definitions/elements/image"
+        },
+        {
+          "$ref": "#/definitions/elements/icon"
+        },
+        {
+          "$ref": "#/definitions/elements/avatar"
+        },
+        {
+          "$ref": "#/definitions/elements/badge"
+        },
+        {
+          "$ref": "#/definitions/elements/divider"
+        },
+        {
+          "$ref": "#/definitions/elements/spacer"
+        },
+        {
+          "$ref": "#/definitions/elements/chip"
+        },
+        {
+          "$ref": "#/definitions/elements/progressBar"
+        },
+        {
+          "$ref": "#/definitions/elements/codeBlock"
+        },
+        {
+          "$ref": "#/definitions/elements/markdown"
+        },
+        {
+          "$ref": "#/definitions/elements/row"
+        },
+        {
+          "$ref": "#/definitions/elements/column"
+        },
+        {
+          "$ref": "#/definitions/elements/grid"
+        },
+        {
+          "$ref": "#/definitions/elements/accordion"
+        },
+        {
+          "$ref": "#/definitions/elements/tabs"
+        },
+        {
+          "$ref": "#/definitions/elements/button"
+        },
+        {
+          "$ref": "#/definitions/elements/iconButton"
+        },
+        {
+          "$ref": "#/definitions/elements/link"
+        },
+        {
+          "$ref": "#/definitions/elements/table"
+        }
+      ]
+    },
+    "elements": {
+      "text": {
+        "type": "object",
+        "title": "Text",
+        "description": "Renders text content. Supports data placeholders {{var}}.",
+        "required": [
+          "id",
+          "type",
+          "content"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "text"
+          },
+          "content": {
+            "type": "string",
+            "description": "Text content. Supports {{placeholder}} syntax."
+          },
+          "variant": {
+            "type": "string",
+            "enum": [
+              "title",
+              "heading1",
+              "heading2",
+              "heading3",
+              "heading4",
+              "body",
+              "caption1",
+              "caption2"
+            ],
+            "default": "body",
+            "description": "Typography level: title (32px), heading1 (24px), heading2 (20px), heading3 (18px), heading4 (16px), body (14px), caption1 (12px), caption2 (10px)."
+          },
+          "color": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "align": {
+            "type": "string",
+            "enum": [
+              "left",
+              "center",
+              "right",
+              "justify"
+            ],
+            "default": "left"
+          },
+          "fontWeight": {
+            "type": "string",
+            "enum": [
+              "regular",
+              "medium",
+              "bold"
+            ],
+            "default": "regular",
+            "description": "Maps to UI Kit weights: regular (400), medium (500), bold (700)."
+          },
+          "maxLines": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "padding": {
+            "$ref": "#/definitions/padding"
+          }
+        }
+      },
+      "image": {
+        "type": "object",
+        "title": "Image",
+        "description": "Renders an image. URL supports {{placeholder}}.",
+        "required": [
+          "id",
+          "type",
+          "url"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "image"
+          },
+          "url": {
+            "type": "string",
+            "description": "Image source URL. Supports {{placeholder}}."
+          },
+          "altText": {
+            "type": "string"
+          },
+          "fit": {
+            "type": "string",
+            "enum": [
+              "cover",
+              "contain",
+              "fill"
+            ],
+            "default": "cover"
+          },
+          "width": {
+            "$ref": "#/definitions/sizeOrPercentage"
+          },
+          "height": {
+            "$ref": "#/definitions/sizeOrPercentage"
+          },
+          "borderRadius": {
+            "type": "number",
+            "minimum": 0
+          },
+          "padding": {
+            "$ref": "#/definitions/padding"
+          }
+        }
+      },
+      "icon": {
+        "type": "object",
+        "title": "Icon",
+        "description": "Renders an icon from the icon library.",
+        "required": [
+          "id",
+          "type",
+          "name"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "icon"
+          },
+          "name": {
+            "type": "string",
+            "description": "Icon name from the icon library."
+          },
+          "size": {
+            "type": "number",
+            "minimum": 0
+          },
+          "color": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "backgroundColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "borderRadius": {
+            "type": "number",
+            "minimum": 0
+          },
+          "padding": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Padding around the icon in px."
+          }
+        }
+      },
+      "avatar": {
+        "type": "object",
+        "title": "Avatar",
+        "description": "Renders a user avatar with image or fallback initials.",
+        "required": [
+          "id",
+          "type"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "avatar"
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "Avatar image URL. Supports {{placeholder}}."
+          },
+          "fallbackInitials": {
+            "type": "string",
+            "maxLength": 2
+          },
+          "size": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Size in density-independent pixels. Suggested presets: 28 (small), 36 (medium), 48 (large)."
+          },
+          "borderRadius": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Corner radius in px. Set to half of size for circle, ~size/4 for rounded."
+          },
+          "backgroundColor": {
+            "$ref": "#/definitions/colorValue",
+            "description": "Background color for the fallback initials circle."
+          },
+          "fontSize": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Font size for fallback initials in px."
+          },
+          "fontWeight": {
+            "type": "string",
+            "enum": [
+              "regular",
+              "medium",
+              "bold"
+            ],
+            "description": "Font weight for fallback initials."
+          }
+        }
+      },
+      "badge": {
+        "type": "object",
+        "title": "Badge",
+        "description": "Renders a small label badge (e.g. status, priority).",
+        "required": [
+          "id",
+          "type",
+          "text"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "badge"
+          },
+          "text": {
+            "type": "string"
+          },
+          "color": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "size": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Badge height in px. Suggested presets: 20 (small), 24 (medium)."
+          },
+          "backgroundColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "borderColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "borderWidth": {
+            "type": "number",
+            "minimum": 0
+          },
+          "borderRadius": {
+            "type": "number",
+            "minimum": 0
+          },
+          "padding": {
+            "$ref": "#/definitions/padding"
+          },
+          "fontSize": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Font size in px."
+          }
+        }
+      },
+      "divider": {
+        "type": "object",
+        "title": "Divider",
+        "description": "Renders a horizontal line separator.",
+        "required": [
+          "id",
+          "type"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "divider"
+          },
+          "color": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "thickness": {
+            "type": "number",
+            "minimum": 0
+          },
+          "margin": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Top and bottom margin in px."
+          }
+        }
+      },
+      "spacer": {
+        "type": "object",
+        "title": "Spacer",
+        "description": "Adds vertical empty space.",
+        "required": [
+          "id",
+          "type",
+          "height"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "spacer"
+          },
+          "height": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "chip": {
+        "type": "object",
+        "title": "Chip",
+        "description": "Renders a compact label chip, optionally with an icon.",
+        "required": [
+          "id",
+          "type",
+          "text"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "chip"
+          },
+          "text": {
+            "type": "string"
+          },
+          "color": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "backgroundColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "borderColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "borderWidth": {
+            "type": "number",
+            "minimum": 0
+          },
+          "borderRadius": {
+            "type": "number",
+            "minimum": 0
+          },
+          "padding": {
+            "$ref": "#/definitions/padding"
+          },
+          "fontSize": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Font size in px."
+          }
+        }
+      },
+      "progressBar": {
+        "type": "object",
+        "title": "Progress Bar",
+        "description": "Renders a horizontal progress bar.",
+        "required": [
+          "id",
+          "type",
+          "value"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "progressBar"
+          },
+          "value": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "color": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "trackColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "height": {
+            "type": "number",
+            "minimum": 0
+          },
+          "label": {
+            "type": "string"
+          },
+          "borderRadius": {
+            "type": "number",
+            "minimum": 0
+          },
+          "labelFontSize": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Font size for the label text in px."
+          },
+          "labelColor": {
+            "$ref": "#/definitions/colorValue",
+            "description": "Color for the label text."
+          }
+        }
+      },
+      "codeBlock": {
+        "type": "object",
+        "title": "Code Block",
+        "description": "Renders a code snippet with optional syntax highlighting label.",
+        "required": [
+          "id",
+          "type",
+          "content"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "codeBlock"
+          },
+          "content": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "backgroundColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "textColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "padding": {
+            "$ref": "#/definitions/padding"
+          },
+          "borderRadius": {
+            "type": "number",
+            "minimum": 0
+          },
+          "fontSize": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Font size in px."
+          },
+          "languageLabelFontSize": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Font size for the language label in px."
+          },
+          "languageLabelColor": {
+            "$ref": "#/definitions/colorValue",
+            "description": "Color for the language label text."
+          }
+        }
+      },
+      "markdown": {
+        "type": "object",
+        "title": "Markdown",
+        "description": "Renders markdown content.",
+        "required": [
+          "id",
+          "type",
+          "content"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "markdown"
+          },
+          "content": {
+            "type": "string"
+          },
+          "baseFontSize": {
+            "type": "number",
+            "minimum": 0
+          },
+          "linkColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "color": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "lineHeight": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Line height multiplier (e.g. 1.5)."
+          }
+        }
+      },
+      "row": {
+        "type": "object",
+        "title": "Row",
+        "description": "Horizontal layout container. Children are arranged left-to-right. Use 'scrollable' for horizontal scroll with optional snap and peek (carousel behavior).",
+        "required": [
+          "id",
+          "type",
+          "items"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "row"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/element"
+            },
+            "minItems": 1
+          },
+          "gap": {
+            "type": "number",
+            "minimum": 0
+          },
+          "align": {
+            "type": "string",
+            "enum": [
+              "start",
+              "center",
+              "end",
+              "spaceBetween",
+              "spaceAround"
+            ],
+            "default": "start"
+          },
+          "crossAlign": {
+            "type": "string",
+            "enum": [
+              "start",
+              "center",
+              "end"
+            ],
+            "default": "start",
+            "description": "Cross-axis (vertical) alignment of children within the row."
+          },
+          "wrap": {
+            "type": "boolean",
+            "default": false
+          },
+          "scrollable": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable horizontal scrolling when items overflow the card width."
+          },
+          "peek": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Pixels of the next item visible when scrollable. Only applies when scrollable is true."
+          },
+          "snap": {
+            "type": "string",
+            "enum": [
+              "item",
+              "free"
+            ],
+            "default": "item",
+            "description": "Snap behavior when scrolling. Only applies when scrollable is true."
+          },
+          "padding": {
+            "$ref": "#/definitions/padding"
+          },
+          "backgroundColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "borderRadius": {
+            "type": "number",
+            "minimum": 0
+          },
+          "borderColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "borderWidth": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "column": {
+        "type": "object",
+        "title": "Column",
+        "description": "Vertical layout container. Children are arranged top-to-bottom.",
+        "required": [
+          "id",
+          "type",
+          "items"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "column"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/element"
+            },
+            "minItems": 1
+          },
+          "gap": {
+            "type": "number",
+            "minimum": 0
+          },
+          "align": {
+            "type": "string",
+            "enum": [
+              "start",
+              "center",
+              "end",
+              "stretch"
+            ],
+            "default": "start"
+          },
+          "crossAlign": {
+            "type": "string",
+            "enum": [
+              "start",
+              "center",
+              "end"
+            ],
+            "default": "start",
+            "description": "Cross-axis (horizontal) alignment of children within the column."
+          },
+          "padding": {
+            "$ref": "#/definitions/padding"
+          },
+          "backgroundColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "borderRadius": {
+            "type": "number",
+            "minimum": 0
+          },
+          "borderColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "borderWidth": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "grid": {
+        "type": "object",
+        "title": "Grid",
+        "description": "Grid layout with 2-4 columns. Items fill left-to-right, top-to-bottom.",
+        "required": [
+          "id",
+          "type",
+          "items"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "grid"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/element"
+            },
+            "minItems": 1
+          },
+          "columns": {
+            "type": "integer",
+            "enum": [
+              2,
+              3,
+              4
+            ],
+            "default": 2
+          },
+          "gap": {
+            "type": "number",
+            "minimum": 0
+          },
+          "padding": {
+            "$ref": "#/definitions/padding"
+          },
+          "backgroundColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "borderRadius": {
+            "type": "number",
+            "minimum": 0
+          },
+          "borderColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "borderWidth": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "accordion": {
+        "type": "object",
+        "title": "Accordion",
+        "description": "Collapsible section with a header and expandable body.",
+        "required": [
+          "id",
+          "type",
+          "header",
+          "body"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "accordion"
+          },
+          "header": {
+            "type": "string"
+          },
+          "headerIcon": {
+            "type": "string"
+          },
+          "body": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/element"
+            },
+            "minItems": 1
+          },
+          "expandedByDefault": {
+            "type": "boolean",
+            "default": false
+          },
+          "border": {
+            "type": "boolean"
+          },
+          "padding": {
+            "$ref": "#/definitions/padding"
+          },
+          "fontSize": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Font size for the header text in px."
+          },
+          "fontWeight": {
+            "type": "string",
+            "enum": [
+              "regular",
+              "medium",
+              "bold"
+            ],
+            "description": "Font weight for the header text."
+          },
+          "borderRadius": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "tabs": {
+        "type": "object",
+        "title": "Tabs",
+        "description": "Tabbed container. Each tab has a label and content elements.",
+        "required": [
+          "id",
+          "type",
+          "tabs"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "tabs"
+          },
+          "tabs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "label",
+                "content"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/element"
+                  },
+                  "minItems": 1
+                }
+              }
+            }
+          },
+          "defaultActiveTab": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0
+          },
+          "tabAlign": {
+            "type": "string",
+            "enum": [
+              "start",
+              "center",
+              "stretch"
+            ],
+            "default": "start"
+          },
+          "tabPadding": {
+            "$ref": "#/definitions/padding",
+            "description": "Padding inside each tab label."
+          },
+          "contentPadding": {
+            "$ref": "#/definitions/padding",
+            "description": "Padding inside the tab content area."
+          },
+          "fontSize": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Font size for tab labels in px."
+          }
+        }
+      },
+      "button": {
+        "type": "object",
+        "title": "Button",
+        "description": "A clickable button that triggers an action.",
+        "required": [
+          "id",
+          "type",
+          "label",
+          "action"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "button"
+          },
+          "label": {
+            "type": "string"
+          },
+          "action": {
+            "$ref": "#/definitions/action"
+          },
+          "backgroundColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "textColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "iconPosition": {
+            "type": "string",
+            "enum": [
+              "left",
+              "right"
+            ],
+            "default": "left"
+          },
+          "size": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Button height in px. Suggested presets: 32 (small), 40 (medium), 48 (large)."
+          },
+          "fullWidth": {
+            "type": "boolean",
+            "default": false
+          },
+          "borderColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "borderWidth": {
+            "type": "number",
+            "minimum": 0
+          },
+          "borderRadius": {
+            "type": "number",
+            "minimum": 0
+          },
+          "padding": {
+            "$ref": "#/definitions/padding"
+          },
+          "fontSize": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Font size in px."
+          }
+        }
+      },
+      "iconButton": {
+        "type": "object",
+        "title": "Icon Button",
+        "description": "A compact icon-only button.",
+        "required": [
+          "id",
+          "type",
+          "icon",
+          "action"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "iconButton"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "action": {
+            "$ref": "#/definitions/action"
+          },
+          "size": {
+            "type": "number",
+            "minimum": 0
+          },
+          "color": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "backgroundColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "borderRadius": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Corner radius in px. Set to half of size for circle, 0 for square."
+          }
+        }
+      },
+      "link": {
+        "type": "object",
+        "title": "Link",
+        "description": "An inline text link that triggers an action.",
+        "required": [
+          "id",
+          "type",
+          "text",
+          "action"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "link"
+          },
+          "text": {
+            "type": "string"
+          },
+          "action": {
+            "$ref": "#/definitions/action"
+          },
+          "color": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "underline": {
+            "type": "boolean",
+            "default": true
+          },
+          "fontSize": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Font size in px."
+          }
+        }
+      },
+      "table": {
+        "type": "object",
+        "title": "Table",
+        "description": "Renders a data table with headers and rows.",
+        "required": [
+          "id",
+          "type",
+          "columns",
+          "rows"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique element identifier. Must be unique across all elements in the card."
+          },
+          "type": {
+            "const": "table"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "Header labels."
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Row data. Cell values support {{placeholder}}."
+          },
+          "headerBackgroundColor": {
+            "$ref": "#/definitions/colorValue"
+          },
+          "border": {
+            "type": "boolean"
+          },
+          "stripedRows": {
+            "type": "boolean"
+          },
+          "cellPadding": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Padding inside each cell in px."
+          },
+          "fontSize": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Font size for table content in px."
+          },
+          "stripedRowColor": {
+            "$ref": "#/definitions/colorValue",
+            "description": "Background color for striped rows."
+          },
+          "borderColor": {
+            "$ref": "#/definitions/colorValue",
+            "description": "Color for table borders."
+          }
+        }
+      }
+    },
+    "cardStyle": {
+      "type": "object",
+      "description": "Visual settings for the message card container.",
+      "additionalProperties": false,
+      "properties": {
+        "background": {
+          "$ref": "#/definitions/colorValue",
+          "description": "Background color (hex value)."
+        },
+        "borderRadius": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Corner radius in px."
+        },
+        "borderColor": {
+          "$ref": "#/definitions/colorValue"
+        },
+        "borderWidth": {
+          "type": "number",
+          "minimum": 0
+        },
+        "padding": {
+          "$ref": "#/definitions/padding"
+        }
+      }
+    }
+  }
+}
+```

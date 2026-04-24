@@ -33,8 +33,6 @@ class HistoryAdapter(
             }
             binding.frameMiniPreview.addView(cardView)
 
-            binding.txtJsonSnippet.text = json.take(80).replace("\n", " ") + "..."
-
             binding.root.setOnClickListener { onItemClick(json) }
             binding.btnDelete.setOnClickListener { onDeleteClick(position) }
         }

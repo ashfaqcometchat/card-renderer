@@ -17,7 +17,6 @@ id main
 id recyclerHistory
 id toolbar
 id txtHistoryHeader
-id txtJsonSnippet
 layout activity_main
 layout activity_preview
 layout item_history

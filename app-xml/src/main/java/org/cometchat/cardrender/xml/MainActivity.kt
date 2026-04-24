@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         binding.recyclerHistory.apply {
-            layoutManager = LinearLayoutManager(this@MainActivity)
+            layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
             adapter = historyAdapter
         }
 

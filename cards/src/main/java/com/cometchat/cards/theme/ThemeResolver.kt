@@ -51,6 +51,7 @@ object CometChatCardThemeResolver {
         defaultValue: CometChatCardColorValue? = null
     ): String? {
         return when (value) {
+            is CometChatCardColorOrHex.Transparent -> "#00000000"
             is CometChatCardColorOrHex.Themed -> {
                 if (effectiveMode == CometChatCardThemeMode.DARK) value.colorValue.dark
                 else value.colorValue.light
@@ -70,6 +71,7 @@ object CometChatCardThemeResolver {
         effectiveMode: CometChatCardThemeMode
     ): String? {
         return when (value) {
+            is CometChatCardColorOrHex.Transparent -> null
             is CometChatCardColorOrHex.Themed -> {
                 if (effectiveMode == CometChatCardThemeMode.DARK) value.colorValue.dark
                 else value.colorValue.light

@@ -23,6 +23,7 @@ data class CometChatCardColorValue(
 sealed interface CometChatCardColorOrHex {
     data class Hex(val value: String) : CometChatCardColorOrHex
     data class Themed(val colorValue: CometChatCardColorValue) : CometChatCardColorOrHex
+    data object Transparent : CometChatCardColorOrHex
 }
 
 object CometChatCardColorOrHexSerializer : KSerializer<CometChatCardColorOrHex> {
@@ -33,7 +34,14 @@ object CometChatCardColorOrHexSerializer : KSerializer<CometChatCardColorOrHex> 
         val jsonDecoder = decoder as JsonDecoder
         val element = jsonDecoder.decodeJsonElement()
         return when (element) {
-            is JsonPrimitive -> CometChatCardColorOrHex.Hex(element.content)
+            is JsonPrimitive -> {
+                val content = element.content
+                if (content.equals("transparent", ignoreCase = true)) {
+                    CometChatCardColorOrHex.Transparent
+                } else {
+                    CometChatCardColorOrHex.Hex(content)
+                }
+            }
             is JsonObject -> {
                 val light = element["light"]?.jsonPrimitive?.content ?: ""
                 val dark = element["dark"]?.jsonPrimitive?.content ?: ""
@@ -55,6 +63,7 @@ object CometChatCardColorOrHexSerializer : KSerializer<CometChatCardColorOrHex> 
                     )
                 )
             )
+            is CometChatCardColorOrHex.Transparent -> jsonEncoder.encodeJsonElement(JsonPrimitive("transparent"))
         }
     }
 }

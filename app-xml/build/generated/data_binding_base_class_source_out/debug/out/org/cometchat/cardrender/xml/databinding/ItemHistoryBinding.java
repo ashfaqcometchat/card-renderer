@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
@@ -27,15 +26,11 @@ public final class ItemHistoryBinding implements ViewBinding {
   @NonNull
   public final FrameLayout frameMiniPreview;
 
-  @NonNull
-  public final TextView txtJsonSnippet;
-
   private ItemHistoryBinding(@NonNull MaterialCardView rootView, @NonNull ImageButton btnDelete,
-      @NonNull FrameLayout frameMiniPreview, @NonNull TextView txtJsonSnippet) {
+      @NonNull FrameLayout frameMiniPreview) {
     this.rootView = rootView;
     this.btnDelete = btnDelete;
     this.frameMiniPreview = frameMiniPreview;
-    this.txtJsonSnippet = txtJsonSnippet;
   }
 
   @Override
@@ -77,14 +72,7 @@ public final class ItemHistoryBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.txtJsonSnippet;
-      TextView txtJsonSnippet = ViewBindings.findChildViewById(rootView, id);
-      if (txtJsonSnippet == null) {
-        break missingId;
-      }
-
-      return new ItemHistoryBinding((MaterialCardView) rootView, btnDelete, frameMiniPreview,
-          txtJsonSnippet);
+      return new ItemHistoryBinding((MaterialCardView) rootView, btnDelete, frameMiniPreview);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

@@ -55,18 +55,17 @@ fun PreviewScreen(cardJson: String, onBack: () -> Unit) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp),
-            contentAlignment = Alignment.TopCenter
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
+            contentAlignment = Alignment.Center
         ) {
             Card(
                 shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
                 ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Box(modifier = Modifier.padding(16.dp)) {
                     CometChatCardComposable(

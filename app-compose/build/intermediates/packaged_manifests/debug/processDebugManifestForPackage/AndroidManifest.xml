@@ -23,6 +23,7 @@
         android:extractNativeLibs="false"
         android:label="Cards Compose Demo"
         android:supportsRtl="true"
+        android:testOnly="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar" >
         <activity
             android:name="org.cometchat.cardrender.compose.MainActivity"

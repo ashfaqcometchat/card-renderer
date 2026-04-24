@@ -31,15 +31,13 @@
         android:textSize="12sp"
         android:padding="12dp"
         android:background="@drawable/edit_text_background"
-        android:minHeight="150dp"
-        android:maxHeight="300dp"
         android:scrollbars="vertical"
         android:importantForAutofill="no"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_default="wrap"
-        app:layout_constraintHeight_max="300dp" />
+        app:layout_constraintHeight_default="percent"
+        app:layout_constraintHeight_percent="0.3" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnRender"
@@ -78,7 +76,8 @@
         android:clipToPadding="false"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:paddingBottom="16dp"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@id/txtHistoryHeader"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

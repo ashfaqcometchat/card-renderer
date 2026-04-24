@@ -23,6 +23,7 @@
         android:extractNativeLibs="false"
         android:label="Cards XML Demo"
         android:supportsRtl="true"
+        android:testOnly="true"
         android:theme="@style/Theme.CardsXmlDemo" >
         <activity
             android:name="org.cometchat.cardrender.xml.MainActivity"
