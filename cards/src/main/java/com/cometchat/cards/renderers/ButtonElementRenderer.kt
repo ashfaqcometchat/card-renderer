@@ -72,8 +72,6 @@ class ButtonElementRenderer : CometChatCardElementRenderer {
                 }
                 "outlined" -> {
                     bg.setColor(Color.TRANSPARENT)
-                    val bc = borderColorHex ?: bgColorHex
-                    bc?.let { runCatching { bg.setStroke((el.borderWidth ?: 1).let { w -> (w * density).toInt() }, Color.parseColor(it)) } }
                 }
                 "text" -> bg.setColor(Color.TRANSPARENT)
                 "tonal" -> {
@@ -84,6 +82,11 @@ class ButtonElementRenderer : CometChatCardElementRenderer {
                         }
                     }
                 }
+            }
+
+            // Always apply border if borderColor and borderWidth are present
+            if (borderColorHex != null && (el.borderWidth ?: 0) > 0) {
+                runCatching { bg.setStroke((el.borderWidth!! * density).toInt(), Color.parseColor(borderColorHex)) }
             }
             background = bg
             applyPadding(this, el.padding)
@@ -162,55 +165,20 @@ class ButtonElementRenderer : CometChatCardElementRenderer {
         }
 
         val modifier = if (el.fullWidth == true) Modifier.fillMaxWidth() else Modifier
+        val hasBorder = borderColor != null && (el.borderWidth ?: 0) > 0
 
-        when (variant) {
-            "filled" -> {
-                Button(
-                    onClick = onClick,
-                    enabled = !isDisabled && !isLoading,
-                    shape = shape,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = bgColor?.let { parseComposeColor(it) } ?: MaterialTheme.colorScheme.primary,
-                        contentColor = textColor?.let { parseComposeColor(it) } ?: androidx.compose.ui.graphics.Color.White
-                    ),
-                    modifier = modifier
-                ) {
-                    ButtonContent(el, isLoading, fontSize, mode, renderContext)
-                }
-            }
-            "outlined" -> {
-                OutlinedButton(
-                    onClick = onClick,
-                    enabled = !isDisabled && !isLoading,
-                    shape = shape,
-                    border = BorderStroke(
-                        (el.borderWidth ?: 1).dp,
-                        (borderColor ?: bgColor)?.let { parseComposeColor(it) } ?: MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = modifier
-                ) {
-                    val tc = (el.textColor?.let { CometChatCardThemeResolver.resolveColor(it, mode) } ?: bgColor)
-                    ButtonContent(el, isLoading, fontSize, mode, renderContext, textColorOverride = tc)
-                }
-            }
-            "text" -> {
-                TextButton(onClick = onClick, enabled = !isDisabled && !isLoading, shape = shape, modifier = modifier) {
-                    ButtonContent(el, isLoading, fontSize, mode, renderContext, textColorOverride = bgColor)
-                }
-            }
-            "tonal" -> {
-                FilledTonalButton(
-                    onClick = onClick,
-                    enabled = !isDisabled && !isLoading,
-                    shape = shape,
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = bgColor?.let { parseComposeColor(it).copy(alpha = 0.15f) } ?: MaterialTheme.colorScheme.secondaryContainer
-                    ),
-                    modifier = modifier
-                ) {
-                    ButtonContent(el, isLoading, fontSize, mode, renderContext, textColorOverride = bgColor)
-                }
-            }
+        Button(
+            onClick = onClick,
+            enabled = !isDisabled && !isLoading,
+            shape = shape,
+            border = if (hasBorder) BorderStroke(el.borderWidth!!.dp, parseComposeColor(borderColor!!)) else null,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = bgColor?.let { parseComposeColor(it) } ?: MaterialTheme.colorScheme.primary,
+                contentColor = textColor?.let { parseComposeColor(it) } ?: androidx.compose.ui.graphics.Color.White
+            ),
+            modifier = modifier
+        ) {
+            ButtonContent(el, isLoading, fontSize, mode, renderContext)
         }
     }
 
