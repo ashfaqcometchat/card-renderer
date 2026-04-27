@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.cometchat</groupId>
+  <artifactId>cards-android</artifactId>
+  <version>1.0.0-beta.1</version>
+  <packaging>aar</packaging>
+  <name>CometChat Cards Renderer</name>
+  <description>Card Schema JSON renderer for Android — View + Compose</description>
+  <url>https://www.cometchat.com</url>
+  <licenses>
+    <license>
+      <name>CometChat License</name>
+      <url>https://www.cometchat.com/terms</url>
+    </license>
+  </licenses>
+  <dependencies>
+    <dependency>
+      <groupId>org.jetbrains.kotlinx</groupId>
+      <artifactId>kotlinx-serialization-json</artifactId>
+      <version>1.8.1</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.coil-kt.coil3</groupId>
+      <artifactId>coil</artifactId>
+      <version>3.1.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.coil-kt.coil3</groupId>
+      <artifactId>coil-compose</artifactId>
+      <version>3.1.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.coil-kt.coil3</groupId>
+      <artifactId>coil-network-okhttp</artifactId>
+      <version>3.1.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>androidx.core</groupId>
+      <artifactId>core-ktx</artifactId>
+      <version>1.18.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>androidx.appcompat</groupId>
+      <artifactId>appcompat</artifactId>
+      <version>1.7.1</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>androidx.compose</groupId>
+      <artifactId>compose-bom</artifactId>
+      <version>2025.04.01</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-stdlib</artifactId>
+      <version>2.2.10</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>

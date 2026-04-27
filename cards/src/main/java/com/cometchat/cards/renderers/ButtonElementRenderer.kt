@@ -113,7 +113,9 @@ class ButtonElementRenderer : CometChatCardElementRenderer {
                     scaleType = ImageView.ScaleType.FIT_CENTER
                 }
                 row.addView(iconView)
-                iconView.load(iconUrl) { crossfade(true) }
+                if (hasInternetPermission(context)) {
+                    iconView.load(iconUrl) { crossfade(true) }
+                }
             }
 
             val effectiveTextColor = when (variant) {
@@ -135,7 +137,9 @@ class ButtonElementRenderer : CometChatCardElementRenderer {
                     scaleType = ImageView.ScaleType.FIT_CENTER
                 }
                 row.addView(iconView)
-                iconView.load(iconUrl) { crossfade(true) }
+                if (hasInternetPermission(context)) {
+                    iconView.load(iconUrl) { crossfade(true) }
+                }
             }
         }
 

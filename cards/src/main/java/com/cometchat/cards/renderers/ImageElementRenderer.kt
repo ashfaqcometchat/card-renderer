@@ -1,6 +1,8 @@
 package com.cometchat.cards.renderers
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.view.View
 import android.widget.FrameLayout
@@ -65,8 +67,19 @@ class ImageElementRenderer : CometChatCardElementRenderer {
 
         container.addView(imageView)
 
-        if (url != null) {
+        if (url != null && hasInternetPermission(context)) {
             imageView.load(url) { crossfade(true) }
+        } else if (el.altText?.isNotBlank() == true) {
+            // No permission or no URL — show altText
+            container.removeAllViews()
+            container.addView(TextView(context).apply {
+                text = el.altText
+                gravity = android.view.Gravity.CENTER
+                layoutParams = FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT
+                )
+            })
         }
 
         applyPadding(container, el.padding)
@@ -140,6 +153,10 @@ class ImageElementRenderer : CometChatCardElementRenderer {
             null -> defaultDp?.let { (it * density).toInt() }
         }
     }
+}
+
+internal fun hasInternetPermission(context: Context): Boolean {
+    return context.checkCallingOrSelfPermission(Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED
 }
 
 @Composable

@@ -60,7 +60,9 @@ class AvatarElementRenderer : CometChatCardElementRenderer {
                 scaleType = ImageView.ScaleType.CENTER_CROP
             }
             container.addView(imageView)
-            imageView.load(el.imageUrl) { crossfade(true) }
+            if (hasInternetPermission(context)) {
+                imageView.load(el.imageUrl) { crossfade(true) }
+            }
         } else if (el.fallbackInitials != null) {
             val textView = TextView(context).apply {
                 layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)

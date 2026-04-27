@@ -62,7 +62,7 @@ class IconElementRenderer : CometChatCardElementRenderer {
 
         container.addView(imageView)
 
-        if (url != null) {
+        if (url != null && hasInternetPermission(context)) {
             imageView.load(url) { crossfade(true) }
         }
 

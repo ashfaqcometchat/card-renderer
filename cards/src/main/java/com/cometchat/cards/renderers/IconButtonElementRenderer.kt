@@ -75,7 +75,9 @@ class IconButtonElementRenderer : CometChatCardElementRenderer {
                 tintColor?.let { runCatching { setColorFilter(Color.parseColor(it), PorterDuff.Mode.SRC_IN) } }
             }
             container.addView(imageView)
-            imageView.load(iconUrl) { crossfade(true) }
+            if (hasInternetPermission(context)) {
+                imageView.load(iconUrl) { crossfade(true) }
+            }
         }
 
         return container

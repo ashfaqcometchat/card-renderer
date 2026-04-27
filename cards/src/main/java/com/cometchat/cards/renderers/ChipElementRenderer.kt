@@ -67,7 +67,9 @@ class ChipElementRenderer : CometChatCardElementRenderer {
                 scaleType = ImageView.ScaleType.FIT_CENTER
             }
             row.addView(iconView)
-            iconView.load(iconUrl) { crossfade(true) }
+            if (hasInternetPermission(context)) {
+                iconView.load(iconUrl) { crossfade(true) }
+            }
         }
 
         row.addView(TextView(context).apply {
