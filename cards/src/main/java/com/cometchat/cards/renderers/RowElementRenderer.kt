@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -99,16 +100,33 @@ class RowElementRenderer : CometChatCardElementRenderer {
         }
         if (el.scrollable == true) modifier = modifier.horizontalScroll(rememberScrollState())
 
-        Row(
-            modifier = modifier,
-            horizontalArrangement = Arrangement.spacedBy(gap.dp)
-        ) {
-            for (child in el.items) {
-                val renderer = renderContext.registry.getRenderer(child.type)
-                if (renderer != null) {
-                    renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
-                } else {
-                    renderContext.logger.warning("Unknown element type: ${child.type}, id: ${child.id}")
+        if (el.wrap == true) {
+            FlowRow(
+                modifier = modifier,
+                horizontalArrangement = Arrangement.spacedBy(gap.dp),
+                verticalArrangement = Arrangement.spacedBy(gap.dp)
+            ) {
+                for (child in el.items) {
+                    val renderer = renderContext.registry.getRenderer(child.type)
+                    if (renderer != null) {
+                        renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
+                    } else {
+                        renderContext.logger.warning("Unknown element type: ${child.type}, id: ${child.id}")
+                    }
+                }
+            }
+        } else {
+            Row(
+                modifier = modifier,
+                horizontalArrangement = Arrangement.spacedBy(gap.dp)
+            ) {
+                for (child in el.items) {
+                    val renderer = renderContext.registry.getRenderer(child.type)
+                    if (renderer != null) {
+                        renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
+                    } else {
+                        renderContext.logger.warning("Unknown element type: ${child.type}, id: ${child.id}")
+                    }
                 }
             }
         }

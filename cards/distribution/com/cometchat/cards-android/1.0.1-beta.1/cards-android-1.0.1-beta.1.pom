@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.cometchat</groupId>
   <artifactId>cards-android</artifactId>
-  <version>1.0.0-beta.1</version>
+  <version>1.0.1-beta.1</version>
   <packaging>aar</packaging>
   <name>CometChat Cards Renderer</name>
   <description>Card Schema JSON renderer for Android — View + Compose</description>

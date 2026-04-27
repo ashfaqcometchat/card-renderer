@@ -7,7 +7,7 @@ plugins {
     id("maven-publish")
 }
 
-val libraryVersion = System.getenv("LIBRARY_VERSION") ?: "1.0.0-beta.1"
+val libraryVersion = System.getenv("LIBRARY_VERSION") ?: "1.0.1-beta.1"
 val libraryGroup = "com.cometchat"
 val libraryArtifact = "cards-android"
 
