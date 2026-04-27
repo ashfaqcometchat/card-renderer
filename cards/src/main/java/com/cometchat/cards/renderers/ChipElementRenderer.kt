@@ -96,13 +96,14 @@ class ChipElementRenderer : CometChatCardElementRenderer {
         val borderColor = CometChatCardThemeResolver.resolveColor(el.borderColor, mode)
         val iconUrl = CometChatCardThemeResolver.resolveUrl(el.icon, mode)
 
-        var modifier = composePadding(el.padding).clip(shape)
+        var modifier = Modifier.clip(shape)
         bgColor?.let { modifier = modifier.background(parseComposeColor(it), shape) }
         if (borderColor != null && el.borderWidth != null) {
             modifier = modifier.border(el.borderWidth.dp, parseComposeColor(borderColor), shape)
         }
+        modifier = modifier.then(composePadding(el.padding))
 
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
             if (iconUrl != null) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current).data(iconUrl).build(),
