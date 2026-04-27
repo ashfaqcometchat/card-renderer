@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
@@ -100,6 +101,28 @@ class RowElementRenderer : CometChatCardElementRenderer {
         }
         if (el.scrollable == true) modifier = modifier.horizontalScroll(rememberScrollState())
 
+        val horizontalArrangement = when (el.align) {
+            "center" -> Arrangement.Center
+            "end" -> Arrangement.End
+            "spaceBetween" -> Arrangement.SpaceBetween
+            "spaceAround" -> Arrangement.SpaceAround
+            else -> Arrangement.Start
+        }.let { base ->
+            if (gap > 0 && el.align != "spaceBetween" && el.align != "spaceAround") {
+                Arrangement.spacedBy(gap.dp, when (el.align) {
+                    "center" -> Alignment.CenterHorizontally
+                    "end" -> Alignment.End
+                    else -> Alignment.Start
+                })
+            } else base
+        }
+
+        val verticalAlignment = when (el.crossAlign) {
+            "center" -> Alignment.CenterVertically
+            "end" -> Alignment.Bottom
+            else -> Alignment.Top
+        }
+
         if (el.wrap == true) {
             FlowRow(
                 modifier = modifier,
@@ -118,7 +141,8 @@ class RowElementRenderer : CometChatCardElementRenderer {
         } else {
             Row(
                 modifier = modifier,
-                horizontalArrangement = Arrangement.spacedBy(gap.dp)
+                horizontalArrangement = horizontalArrangement,
+                verticalAlignment = verticalAlignment
             ) {
                 for (child in el.items) {
                     val renderer = renderContext.registry.getRenderer(child.type)
