@@ -91,11 +91,13 @@ class ColumnElementRenderer : CometChatCardElementRenderer {
 
         // Column uses fillMaxWidth(). When placed inside a Row,
         // the Row wraps it in Box(Modifier.weight(1f)) for proper distribution.
-        var modifier = composePadding(el.padding).fillMaxWidth()
+        // Modifier order: fillMaxWidth → clip → background → border → padding (inside visual boundary)
+        var modifier = Modifier.fillMaxWidth()
         if (borderRadius > 0) modifier = modifier.clip(shape)
         CometChatCardThemeResolver.resolveColor(el.backgroundColor, mode)?.let { modifier = modifier.background(parseComposeColor(it), shape) }
         val borderColor = CometChatCardThemeResolver.resolveColor(el.borderColor, mode)
         if (borderColor != null && el.borderWidth != null) modifier = modifier.border(el.borderWidth.dp, parseComposeColor(borderColor), shape)
+        modifier = modifier.then(composePadding(el.padding))
 
         Column(
             modifier = modifier,

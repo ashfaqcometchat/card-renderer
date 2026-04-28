@@ -152,7 +152,7 @@ class RowElementRenderer : CometChatCardElementRenderer {
             return
         }
 
-        var modifier = composePadding(el.padding).fillMaxWidth()
+        var modifier = Modifier.fillMaxWidth()
         if (borderRadius > 0) modifier = modifier.clip(shape)
         val bgColor = CometChatCardThemeResolver.resolveColor(el.backgroundColor, mode)
         bgColor?.let { modifier = modifier.background(parseComposeColor(it), shape) }
@@ -160,6 +160,7 @@ class RowElementRenderer : CometChatCardElementRenderer {
         if (borderColor != null && el.borderWidth != null) {
             modifier = modifier.border(el.borderWidth.dp, parseComposeColor(borderColor), shape)
         }
+        modifier = modifier.then(composePadding(el.padding))
         if (el.scrollable == true) modifier = modifier.horizontalScroll(rememberScrollState())
 
         val isSpaced = el.align == "spaceBetween" || el.align == "spaceAround"
