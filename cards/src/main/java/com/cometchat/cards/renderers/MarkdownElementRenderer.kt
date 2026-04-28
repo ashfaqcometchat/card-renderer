@@ -139,30 +139,39 @@ class MarkdownElementRenderer : CometChatCardElementRenderer {
             linkColor: androidx.compose.ui.graphics.Color
         ): AnnotatedString {
             return buildAnnotatedString {
-                var remaining = markdown
+                // Pre-process: convert list markers to bullet characters
+                val lines = markdown.split("\n")
+                val processed = lines.joinToString("\n") { line ->
+                    val trimmed = line.trimStart()
+                    when {
+                        trimmed.startsWith("- ") -> "• ${trimmed.removePrefix("- ")}"
+                        trimmed.matches(Regex("^\\d+\\. .+")) -> trimmed.replaceFirst(Regex("^(\\d+)\\. "), "$1. ")
+                        else -> line
+                    }
+                }
+
                 val boldRegex = Regex("\\*\\*(.+?)\\*\\*")
                 val italicRegex = Regex("(?<!\\*)\\*(?!\\*)(.+?)(?<!\\*)\\*(?!\\*)")
                 val codeRegex = Regex("`(.+?)`")
                 val linkRegex = Regex("\\[(.+?)\\]\\((.+?)\\)")
 
-                // Simple sequential parsing
                 var i = 0
-                while (i < remaining.length) {
-                    val boldMatch = boldRegex.find(remaining, i)
-                    val italicMatch = italicRegex.find(remaining, i)
-                    val codeMatch = codeRegex.find(remaining, i)
-                    val linkMatch = linkRegex.find(remaining, i)
+                while (i < processed.length) {
+                    val boldMatch = boldRegex.find(processed, i)
+                    val italicMatch = italicRegex.find(processed, i)
+                    val codeMatch = codeRegex.find(processed, i)
+                    val linkMatch = linkRegex.find(processed, i)
 
                     val matches = listOfNotNull(boldMatch, italicMatch, codeMatch, linkMatch)
                     val nearest = matches.minByOrNull { it.range.first }
 
-                    if (nearest == null || nearest.range.first > remaining.length) {
-                        append(remaining.substring(i))
+                    if (nearest == null || nearest.range.first > processed.length) {
+                        append(processed.substring(i))
                         break
                     }
 
                     if (nearest.range.first > i) {
-                        append(remaining.substring(i, nearest.range.first))
+                        append(processed.substring(i, nearest.range.first))
                     }
 
                     when (nearest) {
