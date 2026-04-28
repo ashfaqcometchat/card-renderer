@@ -9,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import coil3.load
+import coil3.request.crossfade
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -62,16 +64,29 @@ class AccordionElementRenderer : CometChatCardElementRenderer {
         // Header
         val headerView: View = when (val header = el.header) {
             is CometChatCardAccordionHeader.Text -> {
-                TextView(context).apply {
+                val headerRow = LinearLayout(context).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = android.view.Gravity.CENTER_VERTICAL
+                    setPadding((8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt())
+                }
+                // Header icon (e.g. + icon)
+                val iconUrl = CometChatCardThemeResolver.resolveUrl(el.headerIcon, mode)
+                if (iconUrl != null && hasInternetPermission(context)) {
+                    val iconView = android.widget.ImageView(context).apply {
+                        layoutParams = LinearLayout.LayoutParams((18 * density).toInt(), (18 * density).toInt()).apply {
+                            marginEnd = (6 * density).toInt()
+                        }
+                        scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
+                    }
+                    headerRow.addView(iconView)
+                    iconView.load(iconUrl) { crossfade(true) }
+                }
+                headerRow.addView(TextView(context).apply {
                     text = header.value
                     setTextSize(TypedValue.COMPLEX_UNIT_SP, (el.fontSize ?: 16).toFloat())
                     typeface = if (el.fontWeight == "bold") Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-                    if (el.border == true) {
-                        val headerBg = CometChatCardThemeResolver.resolveColor(null, mode, theme.accordionHeaderBg)
-                        headerBg?.let { runCatching { setBackgroundColor(Color.parseColor(it)) } }
-                    }
-                    setPadding((8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt())
-                }
+                })
+                headerRow
             }
             is CometChatCardAccordionHeader.Elements -> {
                 val row = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
@@ -133,20 +148,24 @@ class AccordionElementRenderer : CometChatCardElementRenderer {
 
         Column(modifier = modifier.semantics { stateDescription = if (isExpanded) "Expanded" else "Collapsed" }) {
             // Header
-            Box(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { isExpanded = !isExpanded }
-                    .then(
-                        if (el.border == true) {
-                            CometChatCardThemeResolver.resolveColor(null, mode, theme.accordionHeaderBg)
-                                ?.let { Modifier.background(parseComposeColor(it)) } ?: Modifier
-                        } else Modifier
-                    )
-                    .padding(8.dp)
+                    .padding(8.dp),
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
             ) {
                 when (val header = el.header) {
                     is CometChatCardAccordionHeader.Text -> {
+                        // Header icon
+                        val iconUrl = CometChatCardThemeResolver.resolveUrl(el.headerIcon, mode)
+                        if (iconUrl != null) {
+                            coil3.compose.AsyncImage(
+                                model = coil3.request.ImageRequest.Builder(androidx.compose.ui.platform.LocalContext.current).data(iconUrl).crossfade(true).build(),
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp).padding(end = 6.dp)
+                            )
+                        }
                         Text(
                             text = header.value,
                             fontSize = (el.fontSize ?: 16).sp,
@@ -154,11 +173,9 @@ class AccordionElementRenderer : CometChatCardElementRenderer {
                         )
                     }
                     is CometChatCardAccordionHeader.Elements -> {
-                        Row {
-                            for (child in header.items) {
-                                val renderer = renderContext.registry.getRenderer(child.type)
-                                renderer?.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
-                            }
+                        for (child in header.items) {
+                            val renderer = renderContext.registry.getRenderer(child.type)
+                            renderer?.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
                         }
                     }
                 }
