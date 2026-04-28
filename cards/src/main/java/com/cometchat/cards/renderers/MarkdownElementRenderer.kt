@@ -139,70 +139,77 @@ class MarkdownElementRenderer : CometChatCardElementRenderer {
             linkColor: androidx.compose.ui.graphics.Color
         ): AnnotatedString {
             return buildAnnotatedString {
-                // Pre-process: convert list markers to bullet characters
                 val lines = markdown.split("\n")
-                val processed = lines.joinToString("\n") { line ->
-                    val trimmed = line.trimStart()
-                    when {
+                for ((lineIndex, rawLine) in lines.withIndex()) {
+                    val trimmed = rawLine.trimStart()
+                    // Convert bullet list markers
+                    val line = when {
                         trimmed.startsWith("- ") -> "• ${trimmed.removePrefix("- ")}"
-                        trimmed.matches(Regex("^\\d+\\. .+")) -> trimmed.replaceFirst(Regex("^(\\d+)\\. "), "$1. ")
-                        else -> line
+                        trimmed.matches(Regex("^\\d+\\. .+")) -> trimmed
+                        else -> rawLine
+                    }
+                    // Parse inline formatting within this line
+                    appendInlineFormatted(line, linkColor)
+                    // Add newline between lines (not after last)
+                    if (lineIndex < lines.size - 1) append("\n")
+                }
+            }
+        }
+
+        private fun AnnotatedString.Builder.appendInlineFormatted(
+            text: String,
+            linkColor: androidx.compose.ui.graphics.Color
+        ) {
+            // Combined regex for all inline patterns
+            val inlineRegex = Regex(
+                "\\*\\*(.+?)\\*\\*" +           // bold
+                "|(?<!\\*)\\*(?!\\*)(.+?)(?<!\\*)\\*(?!\\*)" + // italic
+                "|`(.+?)`" +                      // inline code
+                "|\\[(.+?)\\]\\((.+?)\\)"         // link
+            )
+
+            var lastEnd = 0
+            for (match in inlineRegex.findAll(text)) {
+                // Append plain text before this match
+                if (match.range.first > lastEnd) {
+                    append(text.substring(lastEnd, match.range.first))
+                }
+                when {
+                    // Bold: group 1
+                    match.groupValues[1].isNotEmpty() -> {
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(match.groupValues[1])
+                        }
+                    }
+                    // Italic: group 2
+                    match.groupValues[2].isNotEmpty() -> {
+                        withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                            append(match.groupValues[2])
+                        }
+                    }
+                    // Code: group 3
+                    match.groupValues[3].isNotEmpty() -> {
+                        withStyle(SpanStyle(
+                            fontFamily = FontFamily.Monospace,
+                            background = androidx.compose.ui.graphics.Color(0x20000000)
+                        )) {
+                            append(match.groupValues[3])
+                        }
+                    }
+                    // Link: group 4 (text) + group 5 (url)
+                    match.groupValues[4].isNotEmpty() -> {
+                        pushStringAnnotation("URL", match.groupValues[5])
+                        withStyle(SpanStyle(color = linkColor, textDecoration = TextDecoration.Underline)) {
+                            append(match.groupValues[4])
+                        }
+                        pop()
                     }
                 }
-
-                val boldRegex = Regex("\\*\\*(.+?)\\*\\*")
-                val italicRegex = Regex("(?<!\\*)\\*(?!\\*)(.+?)(?<!\\*)\\*(?!\\*)")
-                val codeRegex = Regex("`(.+?)`")
-                val linkRegex = Regex("\\[(.+?)\\]\\((.+?)\\)")
-
-                var i = 0
-                while (i < processed.length) {
-                    val boldMatch = boldRegex.find(processed, i)
-                    val italicMatch = italicRegex.find(processed, i)
-                    val codeMatch = codeRegex.find(processed, i)
-                    val linkMatch = linkRegex.find(processed, i)
-
-                    val matches = listOfNotNull(boldMatch, italicMatch, codeMatch, linkMatch)
-                    val nearest = matches.minByOrNull { it.range.first }
-
-                    if (nearest == null || nearest.range.first > processed.length) {
-                        append(processed.substring(i))
-                        break
-                    }
-
-                    if (nearest.range.first > i) {
-                        append(processed.substring(i, nearest.range.first))
-                    }
-
-                    when (nearest) {
-                        boldMatch -> {
-                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(nearest.groupValues[1])
-                            }
-                        }
-                        italicMatch -> {
-                            withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
-                                append(nearest.groupValues[1])
-                            }
-                        }
-                        codeMatch -> {
-                            withStyle(SpanStyle(fontFamily = FontFamily.Monospace, background = androidx.compose.ui.graphics.Color(0xFFF0F0F0))) {
-                                append(nearest.groupValues[1])
-                            }
-                        }
-                        linkMatch -> {
-                            val text = nearest.groupValues[1]
-                            val url = nearest.groupValues[2]
-                            pushStringAnnotation("URL", url)
-                            withStyle(SpanStyle(color = linkColor, textDecoration = TextDecoration.Underline)) {
-                                append(text)
-                            }
-                            pop()
-                        }
-                    }
-
-                    i = nearest.range.last + 1
-                }
+                lastEnd = match.range.last + 1
+            }
+            // Append remaining plain text
+            if (lastEnd < text.length) {
+                append(text.substring(lastEnd))
             }
         }
     }
