@@ -93,23 +93,16 @@ class MarkdownElementRenderer : CometChatCardElementRenderer {
             linkColor?.let { parseComposeColor(it) } ?: androidx.compose.ui.graphics.Color.Blue
         )
 
-        ClickableText(
+        val resolvedColor = textColor?.let { parseComposeColor(it) }
+            ?: androidx.compose.ui.graphics.Color(0xFF333333)
+
+        androidx.compose.foundation.text.BasicText(
             text = annotatedString,
             style = TextStyle(
                 fontSize = fontSize.sp,
-                color = textColor?.let { parseComposeColor(it) } ?: androidx.compose.ui.graphics.Color.Unspecified,
-                lineHeight = el.lineHeight?.let { (fontSize * it).sp } ?: TextStyle.Default.lineHeight
-            ),
-            onClick = { offset ->
-                annotatedString.getStringAnnotations("URL", offset, offset).firstOrNull()?.let { annotation ->
-                    CometChatCardActionEmitter.emit(
-                        action = CometChatCardOpenUrlAction(url = annotation.item),
-                        elementId = el.id,
-                        cardJson = renderContext.cardJson,
-                        callback = renderContext.onAction
-                    )
-                }
-            }
+                color = resolvedColor,
+                lineHeight = el.lineHeight?.let { (fontSize * it).sp } ?: (fontSize * 1.5f).sp
+            )
         )
     }
 
