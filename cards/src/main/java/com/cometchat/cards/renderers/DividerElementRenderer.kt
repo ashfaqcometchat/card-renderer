@@ -6,9 +6,10 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -28,8 +29,12 @@ class DividerElementRenderer : CometChatCardElementRenderer {
         val color = CometChatCardThemeResolver.resolveColor(el.color, mode, renderContext.resolvedTheme.dividerColor)
         val density = context.resources.displayMetrics.density
 
+        // View approach: single View with height=thickness, topMargin/bottomMargin=margin
         return View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (thickness * density).toInt()).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                (thickness * density).toInt()
+            ).apply {
                 topMargin = (margin * density).toInt()
                 bottomMargin = (margin * density).toInt()
             }
@@ -48,12 +53,17 @@ class DividerElementRenderer : CometChatCardElementRenderer {
         val bgColor = color?.let { runCatching { androidx.compose.ui.graphics.Color(Color.parseColor(it)) }.getOrNull() }
             ?: androidx.compose.ui.graphics.Color.Gray
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(thickness.dp)
-                .padding(vertical = margin.dp)
-                .background(bgColor)
-        )
+        // Compose approach: Spacer for top margin, colored Box for line, Spacer for bottom margin.
+        // This avoids the padding-before-background issue where padding shrinks the content area.
+        Column(modifier = Modifier.fillMaxWidth()) {
+            if (margin > 0) Spacer(modifier = Modifier.height(margin.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(thickness.dp)
+                    .background(bgColor)
+            )
+            if (margin > 0) Spacer(modifier = Modifier.height(margin.dp))
+        }
     }
 }

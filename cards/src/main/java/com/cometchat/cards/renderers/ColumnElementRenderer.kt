@@ -33,9 +33,16 @@ class ColumnElementRenderer : CometChatCardElementRenderer {
             return View(context)
         }
 
+        // Column uses MATCH_PARENT width. When placed inside a Row,
+        // the Row renderer overrides this to 0dp+weight for proper distribution.
         val column = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            gravity = when (el.align) {
+                "center" -> android.view.Gravity.CENTER_HORIZONTAL
+                "end" -> android.view.Gravity.END
+                else -> android.view.Gravity.START
+            }
             applyLayoutBackground(this, el.backgroundColor, el.borderRadius, el.borderColor, el.borderWidth, mode, density)
             applyPadding(this, el.padding)
         }
@@ -82,6 +89,8 @@ class ColumnElementRenderer : CometChatCardElementRenderer {
             else -> Alignment.Start
         }
 
+        // Column uses fillMaxWidth(). When placed inside a Row,
+        // the Row wraps it in Box(Modifier.weight(1f)) for proper distribution.
         var modifier = composePadding(el.padding).fillMaxWidth()
         if (borderRadius > 0) modifier = modifier.clip(shape)
         CometChatCardThemeResolver.resolveColor(el.backgroundColor, mode)?.let { modifier = modifier.background(parseComposeColor(it), shape) }

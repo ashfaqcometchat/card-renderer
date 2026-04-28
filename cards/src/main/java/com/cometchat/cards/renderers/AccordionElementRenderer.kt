@@ -66,8 +66,10 @@ class AccordionElementRenderer : CometChatCardElementRenderer {
                     text = header.value
                     setTextSize(TypedValue.COMPLEX_UNIT_SP, (el.fontSize ?: 16).toFloat())
                     typeface = if (el.fontWeight == "bold") Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-                    val headerBg = CometChatCardThemeResolver.resolveColor(null, mode, theme.accordionHeaderBg)
-                    headerBg?.let { runCatching { setBackgroundColor(Color.parseColor(it)) } }
+                    if (el.border == true) {
+                        val headerBg = CometChatCardThemeResolver.resolveColor(null, mode, theme.accordionHeaderBg)
+                        headerBg?.let { runCatching { setBackgroundColor(Color.parseColor(it)) } }
+                    }
                     setPadding((8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt())
                 }
             }
@@ -136,8 +138,10 @@ class AccordionElementRenderer : CometChatCardElementRenderer {
                     .fillMaxWidth()
                     .clickable { isExpanded = !isExpanded }
                     .then(
-                        CometChatCardThemeResolver.resolveColor(null, mode, theme.accordionHeaderBg)
-                            ?.let { Modifier.background(parseComposeColor(it)) } ?: Modifier
+                        if (el.border == true) {
+                            CometChatCardThemeResolver.resolveColor(null, mode, theme.accordionHeaderBg)
+                                ?.let { Modifier.background(parseComposeColor(it)) } ?: Modifier
+                        } else Modifier
                     )
                     .padding(8.dp)
             ) {
