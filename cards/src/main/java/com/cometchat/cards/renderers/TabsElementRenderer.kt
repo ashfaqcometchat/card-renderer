@@ -129,6 +129,10 @@ class TabsElementRenderer : CometChatCardElementRenderer {
         }
 
         container.addView(tabRow)
+        // Spacing between tab bar and content
+        container.addView(View(context).apply {
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (8 * density).toInt())
+        })
         container.addView(contentContainer)
         updateTabStyles(activeTab)
         renderContent(activeTab)
@@ -186,6 +190,8 @@ class TabsElementRenderer : CometChatCardElementRenderer {
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Content
             Box(modifier = composePadding(el.contentPadding).fillMaxWidth()) {
