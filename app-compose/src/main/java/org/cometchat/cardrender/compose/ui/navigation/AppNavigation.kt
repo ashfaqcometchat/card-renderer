@@ -1,5 +1,6 @@
 package org.cometchat.cardrender.compose.ui.navigation
 
+import android.util.Base64
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
@@ -10,8 +11,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.cometchat.cardrender.compose.ui.screens.HomeScreen
 import org.cometchat.cardrender.compose.ui.screens.PreviewScreen
-import java.net.URLDecoder
-import java.net.URLEncoder
 
 @Composable
 fun AppNavigation() {
@@ -39,18 +38,19 @@ fun AppNavigation() {
                 history = history,
                 onRender = { json ->
                     if (!history.contains(json)) history.add(0, json)
-                    navController.navigate("preview/${URLEncoder.encode(json, "UTF-8")}")
+                    val encoded = Base64.encodeToString(json.toByteArray(Charsets.UTF_8), Base64.URL_SAFE or Base64.NO_WRAP)
+                    navController.navigate("preview/$encoded")
                 },
                 onHistoryItemClick = { json ->
-                    navController.navigate("preview/${URLEncoder.encode(json, "UTF-8")}")
+                    val encoded = Base64.encodeToString(json.toByteArray(Charsets.UTF_8), Base64.URL_SAFE or Base64.NO_WRAP)
+                    navController.navigate("preview/$encoded")
                 },
                 onDeleteHistoryItem = { json -> history.remove(json) }
             )
         }
         composable("preview/{cardJson}") { backStackEntry ->
-            val json = URLDecoder.decode(
-                backStackEntry.arguments?.getString("cardJson").orEmpty(), "UTF-8"
-            )
+            val encoded = backStackEntry.arguments?.getString("cardJson").orEmpty()
+            val json = String(Base64.decode(encoded, Base64.URL_SAFE or Base64.NO_WRAP), Charsets.UTF_8)
             PreviewScreen(cardJson = json, onBack = { navController.popBackStack() })
         }
     }
