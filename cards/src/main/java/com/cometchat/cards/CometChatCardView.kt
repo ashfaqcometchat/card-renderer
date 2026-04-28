@@ -111,6 +111,11 @@ class CometChatCardView @JvmOverloads constructor(
             if (renderer != null) {
                 try {
                     val childView = renderer.renderView(context, element, renderContext)
+                    // Top-level body children must fill card width
+                    val lp = childView.layoutParams as? LinearLayout.LayoutParams
+                        ?: LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    lp.width = ViewGroup.LayoutParams.MATCH_PARENT
+                    childView.layoutParams = lp
                     column.addView(childView)
                 } catch (e: Exception) {
                     CometChatCardLogger.error("Renderer exception for ${element.type}: ${e.message}")

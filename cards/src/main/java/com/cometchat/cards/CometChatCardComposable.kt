@@ -1,6 +1,7 @@
 package com.cometchat.cards
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
@@ -79,7 +80,10 @@ fun CometChatCardComposable(
         for (element in schema.body) {
             val renderer = registry.getRenderer(element.type)
             if (renderer != null) {
-                renderer.RenderComposable(element, renderContext)
+                // Top-level body children must fill card width
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    renderer.RenderComposable(element, renderContext)
+                }
             } else {
                 CometChatCardLogger.warning("Skipping unknown element type: ${element.type}, id: ${element.id}")
             }

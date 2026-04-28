@@ -63,7 +63,11 @@ class RowElementRenderer : CometChatCardElementRenderer {
 
         val row = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
-            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            // spaceBetween/spaceAround need full width to distribute space; others wrap content
+            layoutParams = if (isSpaced)
+                ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            else
+                ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             // crossAlign maps to vertical gravity
             gravity = when (el.crossAlign) {
                 "center" -> android.view.Gravity.CENTER_VERTICAL
@@ -75,8 +79,7 @@ class RowElementRenderer : CometChatCardElementRenderer {
         }
 
         // Count layout children to determine if we need weight distribution
-        val layoutChildCount = el.items.count { it.type in layoutTypes }
-        val hasLayoutChildren = layoutChildCount > 0
+        val hasFullWidthButton = el.items.any { (it as? CometChatCardButtonElement)?.fullWidth == true }
 
         for ((index, child) in el.items.withIndex()) {
             val renderer = renderContext.registry.getRenderer(child.type)
@@ -87,11 +90,11 @@ class RowElementRenderer : CometChatCardElementRenderer {
                     val isFullWidthButton = (child as? CometChatCardButtonElement)?.fullWidth == true
 
                     val lp: LinearLayout.LayoutParams = when {
-                        // Layout children (column, row, grid) get equal weight to share space
-                        isLayoutChild -> LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-                        // fullWidth buttons get weight to fill remaining space
+                        // In spaced rows, layout children get equal weight
+                        isSpaced && isLayoutChild -> LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+                        // fullWidth buttons always get weight
                         isFullWidthButton -> LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-                        // Content children keep natural width
+                        // All other children keep natural width
                         else -> LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                     }
 
@@ -110,8 +113,8 @@ class RowElementRenderer : CometChatCardElementRenderer {
             }
         }
 
-        // For spaceBetween/spaceAround without layout children, insert weighted spacers
-        // (When layout children exist, they already have weight=1f which distributes space)
+        // For spaceBetween/spaceAround with only non-layout children, insert weighted spacers
+        val hasLayoutChildren = el.items.any { it.type in layoutTypes }
         if (isSpaced && !hasLayoutChildren) {
             val childCount = row.childCount
             if (childCount > 1) {
@@ -152,7 +155,10 @@ class RowElementRenderer : CometChatCardElementRenderer {
             return
         }
 
-        var modifier = Modifier.fillMaxWidth()
+        val isSpaced = el.align == "spaceBetween" || el.align == "spaceAround"
+
+        // spaceBetween/spaceAround need full width to distribute space; others wrap content
+        var modifier = if (isSpaced) Modifier.fillMaxWidth() else Modifier
         if (borderRadius > 0) modifier = modifier.clip(shape)
         val bgColor = CometChatCardThemeResolver.resolveColor(el.backgroundColor, mode)
         bgColor?.let { modifier = modifier.background(parseComposeColor(it), shape) }
@@ -162,8 +168,6 @@ class RowElementRenderer : CometChatCardElementRenderer {
         }
         modifier = modifier.then(composePadding(el.padding))
         if (el.scrollable == true) modifier = modifier.horizontalScroll(rememberScrollState())
-
-        val isSpaced = el.align == "spaceBetween" || el.align == "spaceAround"
 
         val horizontalArrangement: Arrangement.Horizontal = when (el.align) {
             "center" -> if (gap > 0) Arrangement.spacedBy(gap.dp, Alignment.CenterHorizontally) else Arrangement.Center
@@ -206,8 +210,8 @@ class RowElementRenderer : CometChatCardElementRenderer {
                         val isLayoutChild = child.type in layoutTypes
                         val isFullWidthButton = (child as? CometChatCardButtonElement)?.fullWidth == true
 
-                        // Layout children and fullWidth buttons get weight(1f) to share space
-                        if (isLayoutChild || isFullWidthButton) {
+                        // In spaced rows, layout children get equal weight; fullWidth buttons always get weight
+                        if ((isSpaced && isLayoutChild) || isFullWidthButton) {
                             Box(modifier = Modifier.weight(1f)) {
                                 renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
                             }

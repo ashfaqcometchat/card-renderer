@@ -33,11 +33,10 @@ class ColumnElementRenderer : CometChatCardElementRenderer {
             return View(context)
         }
 
-        // Column uses MATCH_PARENT width. When placed inside a Row,
-        // the Row renderer overrides this to 0dp+weight for proper distribution.
+        // Column uses WRAP_CONTENT. Parent (Row or card body) controls width.
         val column = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             gravity = when (el.align) {
                 "center" -> android.view.Gravity.CENTER_HORIZONTAL
                 "end" -> android.view.Gravity.END
@@ -89,10 +88,9 @@ class ColumnElementRenderer : CometChatCardElementRenderer {
             else -> Alignment.Start
         }
 
-        // Column uses fillMaxWidth(). When placed inside a Row,
-        // the Row wraps it in Box(Modifier.weight(1f)) for proper distribution.
-        // Modifier order: fillMaxWidth → clip → background → border → padding (inside visual boundary)
-        var modifier = Modifier.fillMaxWidth()
+        // Column uses wrap content. Parent (Row or card body) controls width.
+        // Modifier order: clip → background → border → padding (inside visual boundary)
+        var modifier = composePadding(null)
         if (borderRadius > 0) modifier = modifier.clip(shape)
         CometChatCardThemeResolver.resolveColor(el.backgroundColor, mode)?.let { modifier = modifier.background(parseComposeColor(it), shape) }
         val borderColor = CometChatCardThemeResolver.resolveColor(el.borderColor, mode)
