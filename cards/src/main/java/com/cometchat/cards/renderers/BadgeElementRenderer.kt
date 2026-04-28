@@ -87,6 +87,12 @@ class BadgeElementRenderer : CometChatCardElementRenderer {
 }
 
 internal fun parseComposeColor(hex: String): androidx.compose.ui.graphics.Color {
-    return runCatching { androidx.compose.ui.graphics.Color(Color.parseColor(hex)) }
+    // Expand 3-char (#RGB) and 4-char (#RGBA) hex shorthand to full form
+    val expanded = when {
+        hex.matches(Regex("^#[0-9a-fA-F]{3}$")) -> "#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}"
+        hex.matches(Regex("^#[0-9a-fA-F]{4}$")) -> "#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}${hex[4]}${hex[4]}"
+        else -> hex
+    }
+    return runCatching { androidx.compose.ui.graphics.Color(Color.parseColor(expanded)) }
         .getOrDefault(androidx.compose.ui.graphics.Color.Transparent)
 }

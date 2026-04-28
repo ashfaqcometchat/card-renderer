@@ -50,7 +50,7 @@ object CometChatCardThemeResolver {
         effectiveMode: CometChatCardThemeMode,
         defaultValue: CometChatCardColorValue? = null
     ): String? {
-        return when (value) {
+        val raw = when (value) {
             is CometChatCardColorOrHex.Transparent -> "#00000000"
             is CometChatCardColorOrHex.Themed -> {
                 if (effectiveMode == CometChatCardThemeMode.DARK) value.colorValue.dark
@@ -64,6 +64,18 @@ object CometChatCardThemeResolver {
                 } else null
             }
         }
+        return raw?.let { expandHexShorthand(it) }
+    }
+
+    /** Expand 3-char (#RGB) and 4-char (#RGBA) hex shorthand to full 6/8-char form */
+    private fun expandHexShorthand(hex: String): String {
+        if (hex.length == 4 && hex.startsWith("#")) {
+            return "#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}"
+        }
+        if (hex.length == 5 && hex.startsWith("#")) {
+            return "#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}${hex[4]}${hex[4]}"
+        }
+        return hex
     }
 
     fun resolveUrl(
