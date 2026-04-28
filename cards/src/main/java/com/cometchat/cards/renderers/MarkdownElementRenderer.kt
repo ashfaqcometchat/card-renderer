@@ -10,7 +10,7 @@ import android.text.style.URLSpan
 import android.util.TypedValue
 import android.view.View
 import android.widget.TextView
-import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.*
@@ -96,7 +96,7 @@ class MarkdownElementRenderer : CometChatCardElementRenderer {
         val resolvedColor = textColor?.let { parseComposeColor(it) }
             ?: androidx.compose.ui.graphics.Color(0xFF333333)
 
-        androidx.compose.foundation.text.BasicText(
+        BasicText(
             text = annotatedString,
             style = TextStyle(
                 fontSize = fontSize.sp,
