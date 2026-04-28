@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cometchat.cards.core.CometChatCardElementRenderer
@@ -73,6 +74,8 @@ class TableElementRenderer : CometChatCardElementRenderer {
             textColor?.let { runCatching { setTextColor(Color.parseColor(it)) } }
             if (isBold) setTypeface(null, android.graphics.Typeface.BOLD)
             gravity = Gravity.START or Gravity.CENTER_VERTICAL
+            maxLines = 1
+            ellipsize = android.text.TextUtils.TruncateAt.END
             val px = (padding * density).toInt()
             setPadding(px, px, px, px)
             if (borderColor != null) {
@@ -113,7 +116,9 @@ class TableElementRenderer : CometChatCardElementRenderer {
                             text = col,
                             fontSize = fontSize.sp,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                            color = textColor?.let { parseComposeColor(it) } ?: androidx.compose.ui.graphics.Color.Unspecified
+                            color = textColor?.let { parseComposeColor(it) } ?: androidx.compose.ui.graphics.Color.Unspecified,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
@@ -140,7 +145,9 @@ class TableElementRenderer : CometChatCardElementRenderer {
                             Text(
                                 text = cell,
                                 fontSize = fontSize.sp,
-                                color = textColor?.let { parseComposeColor(it) } ?: androidx.compose.ui.graphics.Color.Unspecified
+                                color = textColor?.let { parseComposeColor(it) } ?: androidx.compose.ui.graphics.Color.Unspecified,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }

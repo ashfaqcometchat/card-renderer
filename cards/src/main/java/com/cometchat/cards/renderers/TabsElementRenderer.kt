@@ -11,15 +11,15 @@ import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cometchat.cards.core.CometChatCardElementRenderer
@@ -53,11 +53,17 @@ class TabsElementRenderer : CometChatCardElementRenderer {
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         }
 
-        val tabBar = HorizontalScrollView(context).apply {
+        val activeColor = CometChatCardThemeResolver.resolveColor(null, mode, theme.tabActiveColor)
+        val inactiveColor = CometChatCardThemeResolver.resolveColor(null, mode, theme.tabInactiveColor)
+
+        // Tab bar — use a horizontal LinearLayout with equal-weight tabs
+        val tabRow = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         }
 
-        val tabRow = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
+        // Store tab containers for indicator updates
+        val tabContainers = mutableListOf<LinearLayout>()
 
         fun renderContent(tabIndex: Int) {
             contentContainer.removeAllViews()
@@ -73,36 +79,58 @@ class TabsElementRenderer : CometChatCardElementRenderer {
             contentContainer.addView(col)
         }
 
-        val activeColor = CometChatCardThemeResolver.resolveColor(null, mode, theme.tabActiveColor)
-        val inactiveColor = CometChatCardThemeResolver.resolveColor(null, mode, theme.tabInactiveColor)
+        fun updateTabStyles(selectedIndex: Int) {
+            for ((i, tc) in tabContainers.withIndex()) {
+                val tv = tc.getChildAt(0) as? TextView ?: continue
+                val indicator = tc.getChildAt(1) as? View ?: continue
+                val isActive = i == selectedIndex
+                val c = if (isActive) activeColor else inactiveColor
+                c?.let { runCatching { tv.setTextColor(Color.parseColor(it)) } }
+                tv.typeface = if (isActive) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+                if (isActive && activeColor != null) {
+                    indicator.visibility = View.VISIBLE
+                    runCatching { indicator.setBackgroundColor(Color.parseColor(activeColor)) }
+                } else {
+                    indicator.visibility = View.INVISIBLE
+                }
+            }
+        }
 
         for ((index, tab) in el.tabs.withIndex()) {
-            val tabView = TextView(context).apply {
-                text = tab.label
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize.toFloat())
-                gravity = Gravity.CENTER
-                setPadding((12 * density).toInt(), (8 * density).toInt(), (12 * density).toInt(), (8 * density).toInt())
-                val color = if (index == activeTab) activeColor else inactiveColor
-                color?.let { runCatching { setTextColor(Color.parseColor(it)) } }
-                if (index == activeTab) typeface = Typeface.DEFAULT_BOLD
+            // Each tab is a vertical container: text + indicator line
+            val tabContainer = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = Gravity.CENTER_HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
                 setOnClickListener {
                     activeTab = index
                     renderContent(index)
-                    // Update tab colors
-                    for (i in 0 until tabRow.childCount) {
-                        val tv = tabRow.getChildAt(i) as? TextView ?: continue
-                        val c = if (i == index) activeColor else inactiveColor
-                        c?.let { runCatching { tv.setTextColor(Color.parseColor(it)) } }
-                        tv.typeface = if (i == index) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-                    }
+                    updateTabStyles(index)
                 }
             }
-            tabRow.addView(tabView)
+
+            val tabText = TextView(context).apply {
+                text = tab.label
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize.toFloat())
+                gravity = Gravity.CENTER
+                setPadding((12 * density).toInt(), (10 * density).toInt(), (12 * density).toInt(), (6 * density).toInt())
+            }
+
+            val indicator = View(context).apply {
+                layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (2 * density).toInt()).apply {
+                    topMargin = (2 * density).toInt()
+                }
+            }
+
+            tabContainer.addView(tabText)
+            tabContainer.addView(indicator)
+            tabContainers.add(tabContainer)
+            tabRow.addView(tabContainer)
         }
 
-        tabBar.addView(tabRow)
-        container.addView(tabBar)
+        container.addView(tabRow)
         container.addView(contentContainer)
+        updateTabStyles(activeTab)
         renderContent(activeTab)
 
         return container
@@ -125,24 +153,37 @@ class TabsElementRenderer : CometChatCardElementRenderer {
         val inactiveColor = CometChatCardThemeResolver.resolveColor(null, mode, theme.tabInactiveColor)
 
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Tab bar
-            LazyRow(
-                modifier = composePadding(el.tabPadding).fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                itemsIndexed(el.tabs) { index, tab ->
+            // Tab bar — equal-width tabs with bottom indicator
+            Row(modifier = composePadding(el.tabPadding).fillMaxWidth()) {
+                for ((index, tab) in el.tabs.withIndex()) {
                     val isActive = index == activeTab
-                    Text(
-                        text = tab.label,
-                        fontSize = fontSize.sp,
-                        fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal,
-                        textDecoration = if (isActive) TextDecoration.Underline else TextDecoration.None,
-                        color = (if (isActive) activeColor else inactiveColor)?.let { parseComposeColor(it) }
-                            ?: androidx.compose.ui.graphics.Color.Unspecified,
+                    Column(
                         modifier = Modifier
-                            .clickable { activeTab = index }
-                            .padding(horizontal = 12.dp, vertical = 8.dp)
-                    )
+                            .weight(1f)
+                            .clickable { activeTab = index },
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = tab.label,
+                            fontSize = fontSize.sp,
+                            fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal,
+                            color = (if (isActive) activeColor else inactiveColor)?.let { parseComposeColor(it) }
+                                ?: androidx.compose.ui.graphics.Color.Unspecified,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)
+                        )
+                        // Bottom indicator line
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(2.dp)
+                                .then(
+                                    if (isActive && activeColor != null)
+                                        Modifier.background(parseComposeColor(activeColor))
+                                    else Modifier
+                                )
+                        )
+                    }
                 }
             }
 

@@ -7,9 +7,6 @@ import android.widget.GridLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -80,22 +77,29 @@ class GridElementRenderer : CometChatCardElementRenderer {
             return
         }
 
-        var modifier = composePadding(el.padding).fillMaxWidth().heightIn(max = 2000.dp)
+        var modifier = composePadding(el.padding).fillMaxWidth()
         if (borderRadius > 0) modifier = modifier.clip(shape)
         CometChatCardThemeResolver.resolveColor(el.backgroundColor, mode)?.let { modifier = modifier.background(parseComposeColor(it), shape) }
         val borderColor = CometChatCardThemeResolver.resolveColor(el.borderColor, mode)
         if (borderColor != null && el.borderWidth != null) modifier = modifier.border(el.borderWidth.dp, parseComposeColor(borderColor), shape)
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(columns),
-            modifier = modifier,
-            horizontalArrangement = Arrangement.spacedBy(gap.dp),
-            verticalArrangement = Arrangement.spacedBy(gap.dp)
-        ) {
-            items(el.items) { child ->
-                val renderer = renderContext.registry.getRenderer(child.type)
-                if (renderer != null) {
-                    renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
+        // Use Column+Row instead of LazyVerticalGrid to avoid measurement issues in scrollable parents
+        val rows = el.items.chunked(columns)
+        Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(gap.dp)) {
+            for (row in rows) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(gap.dp)) {
+                    for (child in row) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            val renderer = renderContext.registry.getRenderer(child.type)
+                            if (renderer != null) {
+                                renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
+                            }
+                        }
+                    }
+                    // Fill remaining cells in last row with empty spacers
+                    repeat(columns - row.size) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
                 }
             }
         }
