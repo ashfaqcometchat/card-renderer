@@ -100,6 +100,11 @@ class ImageElementRenderer : CometChatCardElementRenderer {
             else -> 200.dp
         }
 
+        val widthDp = when (val w = el.width) {
+            is CometChatCardDimension.Dp -> w.value.dp
+            else -> null // null means fill width
+        }
+
         val contentScale = when (el.fit) {
             "contain" -> ContentScale.Fit
             "fill" -> ContentScale.FillBounds
@@ -107,9 +112,12 @@ class ImageElementRenderer : CometChatCardElementRenderer {
         }
 
         var modifier = composePadding(el.padding)
-            .fillMaxWidth()
-            .height(heightDp)
-            .clip(shape)
+        if (widthDp != null) {
+            modifier = modifier.width(widthDp).height(heightDp)
+        } else {
+            modifier = modifier.fillMaxWidth().height(heightDp)
+        }
+        modifier = modifier.clip(shape)
 
         if (el.altText != null) {
             modifier = modifier.semantics { contentDescription = el.altText }
