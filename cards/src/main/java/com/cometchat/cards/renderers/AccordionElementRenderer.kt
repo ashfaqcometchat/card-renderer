@@ -139,12 +139,13 @@ class AccordionElementRenderer : CometChatCardElementRenderer {
             return
         }
 
-        var modifier = composePadding(el.padding).fillMaxWidth()
+        var modifier = Modifier.fillMaxWidth()
         if (borderRadius > 0) modifier = modifier.clip(shape)
         if (el.border == true) {
             val borderColor = CometChatCardThemeResolver.resolveColor(null, mode, theme.accordionBorderColor)
             borderColor?.let { modifier = modifier.border(1.dp, parseComposeColor(it), shape) }
         }
+        modifier = modifier.then(composePadding(el.padding))
 
         Column(modifier = modifier.semantics { stateDescription = if (isExpanded) "Expanded" else "Collapsed" }) {
             // Header
