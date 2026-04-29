@@ -273,10 +273,7 @@ class RowElementRenderer : CometChatCardElementRenderer {
                         when {
                             // In spaced rows, layout children get equal weight with centered content
                             (isSpaced && isLayoutChild) || isFullWidthButton -> {
-                                Box(
-                                    modifier = Modifier.weight(1f),
-                                    contentAlignment = Alignment.Center
-                                ) {
+                                Box(modifier = Modifier.weight(1f)) {
                                     renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
                                 }
                             }

@@ -8,6 +8,7 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.widget.TextView
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -63,6 +64,14 @@ class TextElementRenderer : CometChatCardElementRenderer {
 
             applyPadding(this, el.padding)
             contentDescription = el.content
+
+            // Text with alignment needs to fill parent width for alignment to be visible
+            if (el.align == "center" || el.align == "right") {
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+            }
         }
     }
 
@@ -101,7 +110,9 @@ class TextElementRenderer : CometChatCardElementRenderer {
             textAlign = textAlign,
             maxLines = el.maxLines ?: Int.MAX_VALUE,
             overflow = if (el.maxLines != null) TextOverflow.Ellipsis else TextOverflow.Clip,
-            modifier = composePadding(el.padding)
+            modifier = composePadding(el.padding).let { mod ->
+                if (el.align == "center" || el.align == "right") mod.fillMaxWidth() else mod
+            }
         )
     }
 }

@@ -37,11 +37,6 @@ class ColumnElementRenderer : CometChatCardElementRenderer {
         val column = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            gravity = when (el.align) {
-                "center" -> android.view.Gravity.CENTER_HORIZONTAL
-                "end" -> android.view.Gravity.END
-                else -> android.view.Gravity.START
-            }
             applyLayoutBackground(this, el.backgroundColor, el.borderRadius, el.borderColor, el.borderWidth, mode, density)
             applyPadding(this, el.padding)
         }
@@ -53,7 +48,7 @@ class ColumnElementRenderer : CometChatCardElementRenderer {
                     val childView = renderer.renderView(context, child, renderContext.withDepth(renderContext.depth + 1))
                     if (index > 0) {
                         val lp = childView.layoutParams as? LinearLayout.LayoutParams
-                            ?: LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                            ?: LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                         lp.topMargin = (gap * density).toInt()
                         childView.layoutParams = lp
                     }
@@ -82,11 +77,8 @@ class ColumnElementRenderer : CometChatCardElementRenderer {
             return
         }
 
-        val alignment = when (el.align) {
-            "center" -> Alignment.CenterHorizontally
-            "end" -> Alignment.End
-            else -> Alignment.Start
-        }
+        // Column align is handled by individual text elements' own align property
+        // Column's align in the schema doesn't control child horizontal alignment
 
         // Column uses wrap content. Parent (Row or card body) controls width.
         // Modifier order: clip → background → border → padding (inside visual boundary)
@@ -100,7 +92,7 @@ class ColumnElementRenderer : CometChatCardElementRenderer {
         Column(
             modifier = modifier,
             verticalArrangement = Arrangement.spacedBy(gap.dp),
-            horizontalAlignment = alignment
+            horizontalAlignment = Alignment.Start
         ) {
             for (child in el.items) {
                 val renderer = renderContext.registry.getRenderer(child.type)
