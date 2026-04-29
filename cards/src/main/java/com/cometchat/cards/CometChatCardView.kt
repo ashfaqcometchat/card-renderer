@@ -111,9 +111,11 @@ class CometChatCardView @JvmOverloads constructor(
             if (renderer != null) {
                 try {
                     val childView = renderer.renderView(context, element, renderContext)
-                    // Top-level body children must fill card width
-                    val lp = childView.layoutParams as? LinearLayout.LayoutParams
-                        ?: LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    // Top-level body children must fill card width, preserving original height
+                    val originalLp = childView.layoutParams
+                    val originalHeight = originalLp?.height ?: ViewGroup.LayoutParams.WRAP_CONTENT
+                    val lp = originalLp as? LinearLayout.LayoutParams
+                        ?: LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, originalHeight)
                     lp.width = ViewGroup.LayoutParams.MATCH_PARENT
                     childView.layoutParams = lp
                     column.addView(childView)

@@ -134,6 +134,60 @@ class RowElementRenderer : CometChatCardElementRenderer {
             }
         }
 
+        // Handle wrap: true — use FlexboxLayout-like wrapping
+        if (el.wrap == true) {
+            val wrapContainer = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            }
+            // Move children from row to wrap container with line-breaking
+            val gapPx = (gap * density).toInt()
+            val verticalGapPx = (gap * density).toInt()
+            var currentRow = LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            }
+            wrapContainer.addView(currentRow)
+
+            // Estimate available width accounting for card padding and margins
+            val availableWidth = (context.resources.displayMetrics.widthPixels * 0.85).toInt()
+            var currentRowWidth = 0
+
+            while (row.childCount > 0) {
+                val child = row.getChildAt(0)
+                row.removeViewAt(0)
+
+                // Measure child to get desired width
+                child.measure(
+                    View.MeasureSpec.makeMeasureSpec(availableWidth, View.MeasureSpec.AT_MOST),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                )
+                val childWidth = child.measuredWidth + gapPx
+
+                if (currentRowWidth + childWidth > availableWidth && currentRowWidth > 0) {
+                    // Start new row
+                    currentRow = LinearLayout(context).apply {
+                        orientation = LinearLayout.HORIZONTAL
+                        layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                            topMargin = verticalGapPx
+                        }
+                    }
+                    wrapContainer.addView(currentRow)
+                    currentRowWidth = 0
+                }
+
+                // Apply horizontal gap only between items on the same row (not the first item)
+                val lp = child.layoutParams as? LinearLayout.LayoutParams
+                    ?: LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                lp.marginStart = if (currentRowWidth > 0) gapPx else 0
+                child.layoutParams = lp
+
+                currentRow.addView(child)
+                currentRowWidth += childWidth
+            }
+            return wrapContainer
+        }
+
         return if (el.scrollable == true) {
             HorizontalScrollView(context).apply {
                 layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
