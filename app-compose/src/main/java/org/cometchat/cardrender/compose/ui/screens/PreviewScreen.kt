@@ -35,7 +35,7 @@ fun PreviewScreen(cardJson: String, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Card Preview") },
+                title = { Text("Card Preview Compose") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(

@@ -94,6 +94,11 @@ class RowElementRenderer : CometChatCardElementRenderer {
                         isSpaced && isLayoutChild -> LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
                         // fullWidth buttons always get weight
                         isFullWidthButton -> LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+                        // Dividers in horizontal rows need weight to expand as flexible lines
+                        child.type == "divider" -> {
+                            val origHeight = childView.layoutParams?.height ?: ViewGroup.LayoutParams.WRAP_CONTENT
+                            LinearLayout.LayoutParams(0, origHeight, 1f)
+                        }
                         // All other children keep natural width
                         else -> LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                     }
@@ -263,14 +268,27 @@ class RowElementRenderer : CometChatCardElementRenderer {
                     if (renderer != null) {
                         val isLayoutChild = child.type in layoutTypes
                         val isFullWidthButton = (child as? CometChatCardButtonElement)?.fullWidth == true
+                        val isDivider = child.type == "divider"
 
-                        // In spaced rows, layout children get equal weight; fullWidth buttons always get weight
-                        if ((isSpaced && isLayoutChild) || isFullWidthButton) {
-                            Box(modifier = Modifier.weight(1f)) {
+                        when {
+                            // In spaced rows, layout children get equal weight with centered content
+                            (isSpaced && isLayoutChild) || isFullWidthButton -> {
+                                Box(
+                                    modifier = Modifier.weight(1f),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
+                                }
+                            }
+                            // Dividers in horizontal rows need weight to expand as flexible lines
+                            isDivider -> {
+                                Box(modifier = Modifier.weight(1f).align(Alignment.CenterVertically)) {
+                                    renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
+                                }
+                            }
+                            else -> {
                                 renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
                             }
-                        } else {
-                            renderer.RenderComposable(child, renderContext.withDepth(renderContext.depth + 1))
                         }
                     } else {
                         renderContext.logger.warning("Unknown element type: ${child.type}, id: ${child.id}")
