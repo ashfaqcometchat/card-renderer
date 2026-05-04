@@ -36,7 +36,7 @@ class ColumnElementRenderer : CometChatCardElementRenderer {
         // Column uses WRAP_CONTENT. Parent (Row or card body) controls width.
         val column = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             gravity = when (el.align) {
                 "center" -> android.view.Gravity.CENTER_HORIZONTAL
                 "end" -> android.view.Gravity.END
@@ -53,14 +53,15 @@ class ColumnElementRenderer : CometChatCardElementRenderer {
                     val childView = renderer.renderView(context, child, renderContext.withDepth(renderContext.depth + 1))
                     if (index > 0) {
                         val origWidth = childView.layoutParams?.width ?: ViewGroup.LayoutParams.MATCH_PARENT
+                        val origHeight = childView.layoutParams?.height ?: ViewGroup.LayoutParams.WRAP_CONTENT
                         val lp = childView.layoutParams as? LinearLayout.LayoutParams
-                            ?: LinearLayout.LayoutParams(origWidth, ViewGroup.LayoutParams.WRAP_CONTENT)
+                            ?: LinearLayout.LayoutParams(origWidth, origHeight)
                         lp.topMargin = (gap * density).toInt()
                         childView.layoutParams = lp
                     } else {
-                        // First child: ensure it has LinearLayout.LayoutParams
-                        val origWidth = childView.layoutParams?.width ?: ViewGroup.LayoutParams.MATCH_PARENT
+                        // First child: ensure it has LinearLayout.LayoutParams preserving original dimensions
                         if (childView.layoutParams !is LinearLayout.LayoutParams) {
+                            val origWidth = childView.layoutParams?.width ?: ViewGroup.LayoutParams.MATCH_PARENT
                             val origHeight = childView.layoutParams?.height ?: ViewGroup.LayoutParams.WRAP_CONTENT
                             childView.layoutParams = LinearLayout.LayoutParams(origWidth, origHeight)
                         }
@@ -98,7 +99,7 @@ class ColumnElementRenderer : CometChatCardElementRenderer {
             else -> Alignment.Start
         }
         // Modifier order: clip → background → border → padding (inside visual boundary)
-        var modifier = composePadding(null)
+        var modifier = Modifier.fillMaxWidth()
         if (borderRadius > 0) modifier = modifier.clip(shape)
         CometChatCardThemeResolver.resolveColor(el.backgroundColor, mode)?.let { modifier = modifier.background(parseComposeColor(it), shape) }
         val borderColor = CometChatCardThemeResolver.resolveColor(el.borderColor, mode)
