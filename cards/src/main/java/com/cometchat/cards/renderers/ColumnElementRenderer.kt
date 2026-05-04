@@ -37,6 +37,11 @@ class ColumnElementRenderer : CometChatCardElementRenderer {
         val column = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            gravity = when (el.align) {
+                "center" -> android.view.Gravity.CENTER_HORIZONTAL
+                "end" -> android.view.Gravity.END
+                else -> android.view.Gravity.START
+            }
             applyLayoutBackground(this, el.backgroundColor, el.borderRadius, el.borderColor, el.borderWidth, mode, density)
             applyPadding(this, el.padding)
         }
@@ -47,10 +52,18 @@ class ColumnElementRenderer : CometChatCardElementRenderer {
                 try {
                     val childView = renderer.renderView(context, child, renderContext.withDepth(renderContext.depth + 1))
                     if (index > 0) {
+                        val origWidth = childView.layoutParams?.width ?: ViewGroup.LayoutParams.MATCH_PARENT
                         val lp = childView.layoutParams as? LinearLayout.LayoutParams
-                            ?: LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                            ?: LinearLayout.LayoutParams(origWidth, ViewGroup.LayoutParams.WRAP_CONTENT)
                         lp.topMargin = (gap * density).toInt()
                         childView.layoutParams = lp
+                    } else {
+                        // First child: ensure it has LinearLayout.LayoutParams
+                        val origWidth = childView.layoutParams?.width ?: ViewGroup.LayoutParams.MATCH_PARENT
+                        if (childView.layoutParams !is LinearLayout.LayoutParams) {
+                            val origHeight = childView.layoutParams?.height ?: ViewGroup.LayoutParams.WRAP_CONTENT
+                            childView.layoutParams = LinearLayout.LayoutParams(origWidth, origHeight)
+                        }
                     }
                     column.addView(childView)
                 } catch (e: Exception) {
@@ -77,10 +90,13 @@ class ColumnElementRenderer : CometChatCardElementRenderer {
             return
         }
 
-        // Column align is handled by individual text elements' own align property
-        // Column's align in the schema doesn't control child horizontal alignment
-
-        // Column uses wrap content. Parent (Row or card body) controls width.
+        // Column align controls horizontal positioning of children (icons, avatars, etc.)
+        // Text alignment is handled by individual text elements' own align property
+        val alignment = when (el.align) {
+            "center" -> Alignment.CenterHorizontally
+            "end" -> Alignment.End
+            else -> Alignment.Start
+        }
         // Modifier order: clip → background → border → padding (inside visual boundary)
         var modifier = composePadding(null)
         if (borderRadius > 0) modifier = modifier.clip(shape)
@@ -92,7 +108,7 @@ class ColumnElementRenderer : CometChatCardElementRenderer {
         Column(
             modifier = modifier,
             verticalArrangement = Arrangement.spacedBy(gap.dp),
-            horizontalAlignment = Alignment.Start
+            horizontalAlignment = alignment
         ) {
             for (child in el.items) {
                 val renderer = renderContext.registry.getRenderer(child.type)

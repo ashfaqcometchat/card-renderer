@@ -61,10 +61,13 @@ class RowElementRenderer : CometChatCardElementRenderer {
             return View(context)
         }
 
+        val hasFullWidthButton = el.items.any { (it as? CometChatCardButtonElement)?.fullWidth == true }
+
         val row = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
-            // spaceBetween/spaceAround need full width to distribute space; others wrap content
-            layoutParams = if (isSpaced)
+            // Rows need MATCH_PARENT when: spaceBetween/spaceAround (to distribute space)
+            // or when containing fullWidth buttons (weight needs parent width)
+            layoutParams = if (isSpaced || hasFullWidthButton)
                 ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             else
                 ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -77,9 +80,6 @@ class RowElementRenderer : CometChatCardElementRenderer {
             applyLayoutBackground(this, el.backgroundColor, el.borderRadius, el.borderColor, el.borderWidth, mode, density)
             applyPadding(this, el.padding)
         }
-
-        // Count layout children to determine if we need weight distribution
-        val hasFullWidthButton = el.items.any { (it as? CometChatCardButtonElement)?.fullWidth == true }
 
         for ((index, child) in el.items.withIndex()) {
             val renderer = renderContext.registry.getRenderer(child.type)
@@ -215,9 +215,10 @@ class RowElementRenderer : CometChatCardElementRenderer {
         }
 
         val isSpaced = el.align == "spaceBetween" || el.align == "spaceAround"
+        val hasFullWidthButton = el.items.any { (it as? CometChatCardButtonElement)?.fullWidth == true }
 
-        // spaceBetween/spaceAround need full width to distribute space; others wrap content
-        var modifier = if (isSpaced) Modifier.fillMaxWidth() else Modifier
+        // Rows need fillMaxWidth when: spaceBetween/spaceAround or containing fullWidth buttons
+        var modifier = if (isSpaced || hasFullWidthButton) Modifier.fillMaxWidth() else Modifier
         if (borderRadius > 0) modifier = modifier.clip(shape)
         val bgColor = CometChatCardThemeResolver.resolveColor(el.backgroundColor, mode)
         bgColor?.let { modifier = modifier.background(parseComposeColor(it), shape) }
