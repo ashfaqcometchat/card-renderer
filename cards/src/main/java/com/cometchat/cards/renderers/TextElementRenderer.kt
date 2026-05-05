@@ -102,9 +102,12 @@ class TextElementRenderer : CometChatCardElementRenderer {
             else -> TextAlign.Start
         }
 
+        val fontSize = (typo?.fontSize ?: 14)
+
         Text(
             text = el.content,
-            fontSize = (typo?.fontSize ?: 14).sp,
+            fontSize = fontSize.sp,
+            lineHeight = (fontSize * 1.3f).sp,
             color = color,
             fontWeight = fontWeight,
             textAlign = textAlign,

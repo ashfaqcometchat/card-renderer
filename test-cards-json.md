@@ -4648,3 +4648,563 @@ Elements used: row (spaceBetween, spaceAround), column, text, badge, divider, ic
   }
 }
 ```
+
+## 09 - Frequently Asked Questions
+
+```json
+{
+  "version": "1.0",
+  "body": [
+    {
+      "type": "column",
+      "id": "col_root",
+      "gap": 10,
+      "items": [
+        {
+          "type": "text",
+          "id": "txt_h",
+          "content": "Frequently Asked Questions",
+          "variant": "heading2",
+          "fontWeight": "bold",
+          "color": {
+            "light": "#141414",
+            "dark": "#E8E8E8"
+          },
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "id": "txt_sub",
+          "content": "Everything you need to know about CometChat Cards",
+          "variant": "caption1",
+          "color": {
+            "light": "#999",
+            "dark": "#666"
+          },
+          "align": "center"
+        },
+        {
+          "type": "spacer",
+          "id": "sp0",
+          "height": 4
+        },
+        {
+          "type": "accordion",
+          "id": "acc_1",
+          "header": "What element types are supported?",
+          "border": true,
+          "borderRadius": 10,
+          "expandedByDefault": true,
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "padding": 12,
+          "body": [
+            {
+              "type": "text",
+              "id": "txt_a1",
+              "content": "The Card Schema supports 20 element types across 4 categories:",
+              "variant": "body",
+              "color": {
+                "light": "#333",
+                "dark": "#CCC"
+              }
+            },
+            {
+              "type": "spacer",
+              "id": "sp_a1",
+              "height": 4
+            },
+            {
+              "type": "grid",
+              "id": "grd_a1",
+              "columns": 2,
+              "gap": 6,
+              "items": [
+                {
+                  "type": "column",
+                  "id": "col_a1_content",
+                  "gap": 2,
+                  "backgroundColor": {
+                    "light": "#F0EDFF",
+                    "dark": "#1E1530"
+                  },
+                  "borderRadius": 8,
+                  "padding": {
+                    "top": 8,
+                    "right": 8,
+                    "bottom": 8,
+                    "left": 8
+                  },
+                  "items": [
+                    {
+                      "type": "text",
+                      "id": "txt_a1_c_h",
+                      "content": "Content (11)",
+                      "variant": "caption1",
+                      "fontWeight": "bold",
+                      "color": {
+                        "light": "#6852D6",
+                        "dark": "#A78BFA"
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "txt_a1_c_list",
+                      "content": "text, image, icon, avatar, badge, divider, spacer, chip, progressBar, codeBlock, markdown",
+                      "variant": "caption2",
+                      "color": {
+                        "light": "#555",
+                        "dark": "#AAA"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "column",
+                  "id": "col_a1_layout",
+                  "gap": 2,
+                  "backgroundColor": {
+                    "light": "#E8F5E9",
+                    "dark": "#1B3A1B"
+                  },
+                  "borderRadius": 8,
+                  "padding": {
+                    "top": 8,
+                    "right": 8,
+                    "bottom": 8,
+                    "left": 8
+                  },
+                  "items": [
+                    {
+                      "type": "text",
+                      "id": "txt_a1_l_h",
+                      "content": "Layout (5)",
+                      "variant": "caption1",
+                      "fontWeight": "bold",
+                      "color": {
+                        "light": "#2E7D32",
+                        "dark": "#A5D6A7"
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "txt_a1_l_list",
+                      "content": "row, column, grid, accordion, tabs",
+                      "variant": "caption2",
+                      "color": {
+                        "light": "#555",
+                        "dark": "#AAA"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "column",
+                  "id": "col_a1_interactive",
+                  "gap": 2,
+                  "backgroundColor": {
+                    "light": "#E3F2FD",
+                    "dark": "#0D2137"
+                  },
+                  "borderRadius": 8,
+                  "padding": {
+                    "top": 8,
+                    "right": 8,
+                    "bottom": 8,
+                    "left": 8
+                  },
+                  "items": [
+                    {
+                      "type": "text",
+                      "id": "txt_a1_i_h",
+                      "content": "Interactive (3)",
+                      "variant": "caption1",
+                      "fontWeight": "bold",
+                      "color": {
+                        "light": "#1565C0",
+                        "dark": "#90CAF9"
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "txt_a1_i_list",
+                      "content": "button, iconButton, link",
+                      "variant": "caption2",
+                      "color": {
+                        "light": "#555",
+                        "dark": "#AAA"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "column",
+                  "id": "col_a1_data",
+                  "gap": 2,
+                  "backgroundColor": {
+                    "light": "#FFF3E0",
+                    "dark": "#3E2A10"
+                  },
+                  "borderRadius": 8,
+                  "padding": {
+                    "top": 8,
+                    "right": 8,
+                    "bottom": 8,
+                    "left": 8
+                  },
+                  "items": [
+                    {
+                      "type": "text",
+                      "id": "txt_a1_d_h",
+                      "content": "Data (1)",
+                      "variant": "caption1",
+                      "fontWeight": "bold",
+                      "color": {
+                        "light": "#E65100",
+                        "dark": "#FFB74D"
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "txt_a1_d_list",
+                      "content": "table",
+                      "variant": "caption2",
+                      "color": {
+                        "light": "#555",
+                        "dark": "#AAA"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "accordion",
+          "id": "acc_2",
+          "header": "How does theme resolution work?",
+          "border": true,
+          "borderRadius": 10,
+          "expandedByDefault": false,
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "padding": 12,
+          "body": [
+            {
+              "type": "markdown",
+              "id": "md_a2",
+              "content": "Colors use a **ColorValue** object with `light` and `dark` fields:\n\n```\n{ \"light\": \"#141414\", \"dark\": \"#E8E8E8\" }\n```\n\nThe renderer resolves the correct value based on the active theme mode:\n\n1. **auto** — follows system preference\n2. **light** — always uses `light` value\n3. **dark** — always uses `dark` value\n\nPrecedence: *JSON value > Theme Override > Default Theme*",
+              "baseFontSize": 13,
+              "color": {
+                "light": "#333",
+                "dark": "#CCC"
+              },
+              "linkColor": {
+                "light": "#6852D6",
+                "dark": "#A78BFA"
+              }
+            }
+          ]
+        },
+        {
+          "type": "accordion",
+          "id": "acc_3",
+          "header": "What actions can buttons trigger?",
+          "border": true,
+          "borderRadius": 10,
+          "expandedByDefault": false,
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "padding": 12,
+          "body": [
+            {
+              "type": "text",
+              "id": "txt_a3_intro",
+              "content": "9 action types are supported. The library emits them to your callback — it never executes actions itself.",
+              "variant": "body",
+              "color": {
+                "light": "#333",
+                "dark": "#CCC"
+              }
+            },
+            {
+              "type": "spacer",
+              "id": "sp_a3",
+              "height": 6
+            },
+            {
+              "type": "table",
+              "id": "tbl_a3",
+              "columns": [
+                "Action",
+                "Key Params"
+              ],
+              "rows": [
+                [
+                  "openUrl",
+                  "url, openIn"
+                ],
+                [
+                  "copyToClipboard",
+                  "value"
+                ],
+                [
+                  "downloadFile",
+                  "url, filename"
+                ],
+                [
+                  "apiCall",
+                  "url, method, headers, body"
+                ],
+                [
+                  "chatWithUser",
+                  "uid"
+                ],
+                [
+                  "chatWithGroup",
+                  "guid"
+                ],
+                [
+                  "sendMessage",
+                  "text, receiverUid/Guid"
+                ],
+                [
+                  "initiateCall",
+                  "callType, uid/guid"
+                ],
+                [
+                  "customCallback",
+                  "callbackId, payload"
+                ]
+              ],
+              "border": true,
+              "cellPadding": 6,
+              "fontSize": 11,
+              "headerBackgroundColor": {
+                "light": "#6852D6",
+                "dark": "#6852D6"
+              },
+              "stripedRows": true,
+              "stripedRowColor": {
+                "light": "#FAFAFA",
+                "dark": "#222"
+              },
+              "borderColor": {
+                "light": "#E0E0E0",
+                "dark": "#333"
+              }
+            }
+          ]
+        },
+        {
+          "type": "accordion",
+          "id": "acc_4",
+          "header": "What's the maximum nesting depth?",
+          "border": true,
+          "borderRadius": 10,
+          "expandedByDefault": false,
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "padding": 12,
+          "body": [
+            {
+              "type": "text",
+              "id": "txt_a4",
+              "content": "Layout elements can nest up to 5 levels deep. Elements at depth 6+ are silently skipped. This prevents infinite recursion and keeps rendering performant.",
+              "variant": "body",
+              "color": {
+                "light": "#333",
+                "dark": "#CCC"
+              }
+            },
+            {
+              "type": "spacer",
+              "id": "sp_a4",
+              "height": 6
+            },
+            {
+              "type": "row",
+              "id": "row_a4_demo",
+              "gap": 4,
+              "wrap": true,
+              "items": [
+                {
+                  "type": "badge",
+                  "id": "bdg_a4_1",
+                  "text": "D1",
+                  "backgroundColor": {
+                    "light": "#F44336",
+                    "dark": "#EF5350"
+                  },
+                  "color": {
+                    "light": "#FFF",
+                    "dark": "#FFF"
+                  },
+                  "borderRadius": 4,
+                  "fontSize": 9,
+                  "size": 20
+                },
+                {
+                  "type": "badge",
+                  "id": "bdg_a4_2",
+                  "text": "D2",
+                  "backgroundColor": {
+                    "light": "#FF9800",
+                    "dark": "#FFB74D"
+                  },
+                  "color": {
+                    "light": "#FFF",
+                    "dark": "#FFF"
+                  },
+                  "borderRadius": 4,
+                  "fontSize": 9,
+                  "size": 20
+                },
+                {
+                  "type": "badge",
+                  "id": "bdg_a4_3",
+                  "text": "D3",
+                  "backgroundColor": {
+                    "light": "#4CAF50",
+                    "dark": "#66BB6A"
+                  },
+                  "color": {
+                    "light": "#FFF",
+                    "dark": "#FFF"
+                  },
+                  "borderRadius": 4,
+                  "fontSize": 9,
+                  "size": 20
+                },
+                {
+                  "type": "badge",
+                  "id": "bdg_a4_4",
+                  "text": "D4",
+                  "backgroundColor": {
+                    "light": "#2196F3",
+                    "dark": "#42A5F5"
+                  },
+                  "color": {
+                    "light": "#FFF",
+                    "dark": "#FFF"
+                  },
+                  "borderRadius": 4,
+                  "fontSize": 9,
+                  "size": 20
+                },
+                {
+                  "type": "badge",
+                  "id": "bdg_a4_5",
+                  "text": "D5 ✓",
+                  "backgroundColor": {
+                    "light": "#9C27B0",
+                    "dark": "#CE93D8"
+                  },
+                  "color": {
+                    "light": "#FFF",
+                    "dark": "#FFF"
+                  },
+                  "borderRadius": 4,
+                  "fontSize": 9,
+                  "size": 20
+                },
+                {
+                  "type": "badge",
+                  "id": "bdg_a4_6",
+                  "text": "D6 ✗",
+                  "backgroundColor": {
+                    "light": "#E0E0E0",
+                    "dark": "#555"
+                  },
+                  "color": {
+                    "light": "#999",
+                    "dark": "#999"
+                  },
+                  "borderRadius": 4,
+                  "fontSize": 9,
+                  "size": 20
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "accordion",
+          "id": "acc_5",
+          "header": "How do I handle unknown element types?",
+          "border": true,
+          "borderRadius": 10,
+          "expandedByDefault": false,
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "padding": 12,
+          "body": [
+            {
+              "type": "text",
+              "id": "txt_a5",
+              "content": "Unknown element types are silently skipped. The renderer logs a warning and continues with the next sibling. This ensures forward compatibility — older renderers gracefully handle newer schema versions.",
+              "variant": "body",
+              "color": {
+                "light": "#333",
+                "dark": "#CCC"
+              }
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "id": "sp_end",
+          "height": 6
+        },
+        {
+          "type": "row",
+          "id": "row_footer",
+          "gap": 8,
+          "crossAlign": "center",
+          "items": [
+            {
+              "type": "text",
+              "id": "txt_more",
+              "content": "Still have questions?",
+              "variant": "body",
+              "color": {
+                "light": "#555",
+                "dark": "#AAA"
+              }
+            },
+            {
+              "type": "link",
+              "id": "lnk_docs",
+              "text": "Read the docs →",
+              "action": {
+                "type": "openUrl",
+                "url": "https://docs.cometchat.com/cards"
+              },
+              "color": {
+                "light": "#6852D6",
+                "dark": "#A78BFA"
+              },
+              "underline": true,
+              "fontSize": 14
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "fallbackText": "FAQ — Card Schema supports 20 elements, 9 actions, 5 levels deep",
+  "style": {
+    "background": {
+      "light": "#FFFFFF",
+      "dark": "#1A1A1A"
+    },
+    "borderRadius": 16,
+    "borderColor": {
+      "light": "#E0E0E0",
+      "dark": "#333"
+    },
+    "padding": 16
+  }
+}
+```
