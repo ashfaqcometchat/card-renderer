@@ -1,0 +1,150 @@
+# Merged public-repo project — generated/owned by the release CI.
+# Two sample-app targets (basic SampleApp dropped by decision).
+# UIKit is consumed as the RELEASED binary via the local CometChatUIKitSwift
+# package (its Package.swift binaryTarget is rewritten with each release's
+# url + checksum). All targets therefore share ONE package graph.
+name: CometChatUIKitSwift
+options:
+  bundleIdPrefix: com.cometchat
+  deploymentTarget:
+    iOS: "15.1"
+  xcodeVersion: "16.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+packages:
+  CometChatUIKitSwift:
+    path: CometChatUIKitSwift        # local binaryTarget = the released xcframework
+  CometChatSDK:
+    url: https://github.com/cometchat/chat-sdk-ios.git
+    from: "4.1.6"                    # product also vends CometChatStarscream (required by UIKit)
+  CometChatCallsSDK:
+    url: https://github.com/cometchat/calls-sdk-ios.git
+    from: "5.0.1"
+  CometChatCardsSwift:
+    path: LocalPackages/CometChatCardsSwift   # released UIKit imports CometChatCardsSwift
+  CometChatPushNotifications:
+    url: https://github.com/cometchat-team/push-notifications-sdk-ios.git
+    exactVersion: "0.1.0"
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk.git
+    from: "10.16.0"                  # Google login (FirebaseAuth)
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS.git
+    from: "7.0.0"
+
+targets:
+  # ── Basic sample (converted from master-app) ──
+  SampleApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.1"
+    sources:
+      - path: SampleApp
+    dependencies:
+      - package: CometChatUIKitSwift
+      - package: CometChatCallsSDK
+      - package: CometChatSDK
+      - package: CometChatCardsSwift
+      - package: Firebase
+        product: FirebaseAuth
+      - package: GoogleSignIn
+        product: GoogleSignIn
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.cometchat.sampleapp.ios
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGN_STYLE: Automatic
+        INFOPLIST_FILE: SampleApp/Info.plist
+        CODE_SIGN_ENTITLEMENTS: SampleApp/SampleApp.entitlements
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: "CometChat Sample"
+        INFOPLIST_KEY_UILaunchStoryboardName: LaunchScreen
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_NSCameraUsageDescription: "Access Camera"
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "Access Microphone"
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Access Photos"
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "Use Photos"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1,2"
+        IPHONEOS_DEPLOYMENT_TARGET: "15.1"
+
+  # ── AI Agents sample ──
+  AISampleApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.6"
+    sources:
+      - path: AISampleApp
+    dependencies:
+      - package: CometChatUIKitSwift
+      - package: CometChatSDK
+      - package: CometChatCardsSwift
+      - package: Firebase
+        product: FirebaseAuth
+      - package: GoogleSignIn
+        product: GoogleSignIn
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.cometchat.ai.sampleapp.ios
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGN_STYLE: Automatic
+        INFOPLIST_FILE: AISampleApp/Info.plist
+        CODE_SIGN_ENTITLEMENTS: AISampleApp/CometChatAISampleApp.entitlements
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: "CometChat AI Sample"
+        INFOPLIST_KEY_UILaunchStoryboardName: LaunchScreen
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_NSCameraUsageDescription: "Access Camera"
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "Access Microphone"
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Access Photos"
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "Use Photos"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1,2"
+
+  # ── APNs push + VoIP sample ──
+  SampleAppPushNotificationAPNs:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.1"
+    sources:
+      - path: SampleAppPushNotificationAPNs
+    dependencies:
+      - package: CometChatUIKitSwift
+      - package: CometChatCallsSDK
+      - package: CometChatSDK
+      - package: CometChatCardsSwift
+      - package: CometChatPushNotifications
+        product: CometChatPushNotificationsSwift
+      - package: Firebase
+        product: FirebaseAuth
+      - package: GoogleSignIn
+        product: GoogleSignIn
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.cometchat.push.sampleapp.ios
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGN_STYLE: Automatic
+        INFOPLIST_FILE: SampleAppPushNotificationAPNs/Info.plist
+        CODE_SIGN_ENTITLEMENTS: SampleAppPushNotificationAPNs/CometChatPushNotificationSampleApp.entitlements
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: "CometChat Push Sample"
+        INFOPLIST_KEY_UILaunchStoryboardName: LaunchScreen
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_NSCameraUsageDescription: "Access Camera"
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "Access Microphone"
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Access Photos"
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "Use Photos"
+        INFOPLIST_KEY_NSLocationWhenInUseUsageDescription: "Turn on location services to share your location with everyone."
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1,2"
+        IPHONEOS_DEPLOYMENT_TARGET: "15.1"
