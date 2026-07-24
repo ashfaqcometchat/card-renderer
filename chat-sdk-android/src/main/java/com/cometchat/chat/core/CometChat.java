@@ -2,6 +2,7 @@ package com.cometchat.chat.core;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -2151,30 +2152,37 @@ public final class CometChat {
                         return;
                     }
 
-                    // Check file size limit
-                    if (message.getTotalFileSize() > settings.getFileSize()) {
-                        postOnMainThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                double totalFileSizeMB = message.getTotalFileSize() / (1024.0 * 1024.0);
-                                double allowedSizeMB = settings.getFileSize() / (1024.0 * 1024.0);
-                                String errorMessage;
-                                if (message.getFiles().size() == 1) {
-                                    // Single file
-                                    errorMessage = String.format(CometChatConstants.Errors.ERROR_INVALID_FILE_SIZE, String.format("%.2f MB", allowedSizeMB));
-                                } else {
-                                    // Multiple files
-                                    errorMessage = String.format(CometChatConstants.Errors.ERROR_INVALID_FILE_SIZE_MULTIPLE, String.format("%.2f MB", totalFileSizeMB), String.format("%.2f MB", allowedSizeMB));
+                    // Check file size limit — enforced per file only; there is
+                    // intentionally no combined/total-size cap (a message may carry
+                    // up to file.count.max files, each up to file.size.max).
+                    for (File file : message.getFiles()) {
+                        if (file.length() > settings.getFileSize()) {
+                            postOnMainThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    double allowedSizeMB = settings.getFileSize() / (1024.0 * 1024.0);
+                                    listener.onError(new CometChatException(CometChatConstants.Errors.ERR_BAD_REQUEST,
+                                            String.format(CometChatConstants.Errors.ERROR_INVALID_FILE_SIZE, String.format("%.2f MB", allowedSizeMB))));
                                 }
-                                listener.onError(new CometChatException(CometChatConstants.Errors.ERR_BAD_REQUEST, errorMessage));
-                            }
-                        });
-                        return;
+                            });
+                            return;
+                        }
                     }
                     isValid = true;
                 }
             }
             if (message.getAttachments() != null && message.getAttachments().size() > 0) {
+                final int maxAttachmentCount = settings != null ? settings.getFileCount() : 10;
+                if (message.getAttachments().size() > maxAttachmentCount) {
+                    postOnMainThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onError(new CometChatException(CometChatConstants.Errors.ERR_FILE_COUNT_EXCEEDED,
+                                    String.format(CometChatConstants.Errors.ERR_FILE_COUNT_EXCEEDED_MESSAGE, maxAttachmentCount)));
+                        }
+                    });
+                    return;
+                }
                 final CometChatException ce = validateAttachments(message);
                 if (ce != null) {
                     postOnMainThread(new Runnable() {
@@ -2266,6 +2274,61 @@ public final class CometChat {
             }
         }
         return doFilesExist;
+    }
+
+    /**
+     * Creates an {@link UploadFileRequest} — the entry point for multi-attachment
+     * uploads. The request is scoped to one destination and one upload <b>batch</b>:
+     * configure it ({@code setParentMessageId} / {@code setBatchId} /
+     * {@code setConcurrency}), upload through it ({@code uploadAttachments} /
+     * {@code uploadAttachment}), read the batch off it ({@code getAttachments},
+     * {@code getStatus}, …), and release it with {@code clearAll()} after a
+     * successful send.
+     *
+     * <p>Upload is <b>decoupled from send</b>: when uploads are ready, build a
+     * {@link MediaMessage}, set the uploaded attachments via
+     * {@code setAttachments(...)} (plus an optional caption and a {@code muid}),
+     * and send it with the existing
+     * {@link #sendMediaMessage(MediaMessage, CallbackListener)} — send is instant
+     * because the bytes are already on storage.</p>
+     *
+     * <p>One request = one batch. Concurrent composers (e.g. main and thread)
+     * create separate requests with separate batch ids; they never cross-talk.</p>
+     *
+     * @param receiverId   the destination uid (user) or guid (group)
+     * @param receiverType the destination type ({@code user} or {@code group}); required
+     *                     so the api can authorize the upload against the receiver (RBAC/SBAC)
+     * @since <b>v5</b>
+     */
+    public static UploadFileRequest createUploadFileRequest(@NonNull String receiverId,
+                                                            @CometChatConstants.ReceiverTypes String receiverType) {
+        return new UploadFileRequest(receiverId, receiverType);
+    }
+
+    /**
+     * Returns the maximum number of attachments allowed in a single message
+     * ({@code file.count.max} from app settings, default {@code 10}). Consumers
+     * (e.g. the UIKit) can read this to gate the number of attachments in the
+     * composer before uploading; the SDK also enforces it in
+     * {@link #sendMediaMessage(MediaMessage, CallbackListener)}.
+     *
+     * @since <b>v5</b>
+     */
+    public static int getMaxAttachmentCount() {
+        Settings settings = SettingsRepo.getSettings();
+        return settings != null ? settings.getFileCount() : 10;
+    }
+
+    /**
+     * Returns the maximum allowed file size in bytes ({@code file.size.max} from
+     * app settings, default {@code 104857600} = 100 MB). The SDK enforces this
+     * per file in {@code UploadFileRequest.uploadAttachments}.
+     *
+     * @since <b>v5</b>
+     */
+    public static long getMaxFileSize() {
+        Settings settings = SettingsRepo.getSettings();
+        return settings != null ? settings.getFileSize() : 104857600L;
     }
 
     private static CometChatException validateAttachments(MediaMessage message) {

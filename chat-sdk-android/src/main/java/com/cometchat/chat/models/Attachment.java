@@ -28,6 +28,7 @@ public class Attachment implements Parcelable, Cloneable {
     private int fileSize;
     private String fileMimeType;
     private String fileUrl;
+    private JSONObject metadata;
     private static String fat;
     private static String secureMediaHost;
 
@@ -39,6 +40,13 @@ public class Attachment implements Parcelable, Cloneable {
         fileSize = in.readInt();
         fileMimeType = in.readString();
         fileUrl = in.readString();
+        String metadataStr = in.readString();
+        if (metadataStr != null) {
+            try {
+                metadata = new JSONObject(metadataStr);
+            } catch (JSONException ignored) {
+            }
+        }
     }
 
     @Override
@@ -48,6 +56,7 @@ public class Attachment implements Parcelable, Cloneable {
         dest.writeInt(fileSize);
         dest.writeString(fileMimeType);
         dest.writeString(fileUrl);
+        dest.writeString(metadata != null ? metadata.toString() : null);
     }
 
     @Override
@@ -149,6 +158,21 @@ public class Attachment implements Parcelable, Cloneable {
         this.fileUrl = fileUrl;
     }
 
+    /**
+     * Get optional metadata of the file (e.g. {@code width}, {@code height},
+     * {@code duration}). May be {@code null}.
+     *
+     * @return A {@link JSONObject} of file metadata, or {@code null} if none.
+     * @since <b>v5</b>
+     */
+    public JSONObject getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(JSONObject metadata) {
+        this.metadata = metadata;
+    }
+
     public static void setFat(String fat) {
         Attachment.fat = fat;
     }
@@ -190,6 +214,8 @@ public class Attachment implements Parcelable, Cloneable {
                     attachment.setFileUrl(attachmentObject.getString(CometChatConstants.MessageKeys.KEY_ATTACHMENT_URL));
                 }
             }
+            if (attachmentObject.has(CometChatConstants.MessageKeys.KEY_ATTACHMENT_METADATA))
+                attachment.setMetadata(attachmentObject.getJSONObject(CometChatConstants.MessageKeys.KEY_ATTACHMENT_METADATA));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -208,6 +234,8 @@ public class Attachment implements Parcelable, Cloneable {
             jsonObject.put(CometChatConstants.MessageKeys.KEY_ATTACHMENT_NAME, this.getFileName());
         if(this.getFileSize() > 0)
             jsonObject.put(CometChatConstants.MessageKeys.KEY_ATTACHMENT_SIZE, this.getFileSize());
+        if(this.getMetadata() != null)
+            jsonObject.put(CometChatConstants.MessageKeys.KEY_ATTACHMENT_METADATA, this.getMetadata());
         return jsonObject;
     }
 
@@ -238,11 +266,14 @@ public class Attachment implements Parcelable, Cloneable {
         Attachment that = (Attachment) other;
 
         // 5. Compare all fields
+        String thisMetadata = metadata != null ? metadata.toString() : null;
+        String thatMetadata = that.metadata != null ? that.metadata.toString() : null;
         return fileSize == that.fileSize &&
                 ContentEqualsHelper.stringsEqual(fileName, that.fileName) &&
                 ContentEqualsHelper.stringsEqual(fileExtension, that.fileExtension) &&
                 ContentEqualsHelper.stringsEqual(fileMimeType, that.fileMimeType) &&
-                ContentEqualsHelper.stringsEqual(fileUrl, that.fileUrl);
+                ContentEqualsHelper.stringsEqual(fileUrl, that.fileUrl) &&
+                ContentEqualsHelper.stringsEqual(thisMetadata, thatMetadata);
     }
 
     @Override

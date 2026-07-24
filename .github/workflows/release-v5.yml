@@ -1,7 +1,7 @@
 name: Public Release (master-v5)
 
 # Runs when a PR is merged into master-v5 (GA / public release):
-#   1) dependencies-android: branch v<version> off dev-v5, bump version, merge
+#   1) dependencies-android: branch release-v5-<version> off dev-v5, bump version, merge
 #      into dev-v5 then master-v5, clean + publish
 #   2) mirror the private repo into the public repo (cometchat/chat-sdk-android @ v5)
 #   3) Cloudsmith production release (cometchat/cometchat)
@@ -14,7 +14,7 @@ name: Public Release (master-v5)
 # same workflow against safe targets — version suffixed '-staging.<epoch>',
 # Cloudsmith → call-team, public repo → ashfaqcometchat/card-renderer (branch
 # chat-sdk-citest). The deps flow runs against the REAL dependencies-android: it
-# branches v<version> off dev-v5, bumps, PUSHES that branch, and publishes to
+# branches release-v5-<version> off dev-v5, bumps, PUSHES that branch, and publishes to
 # call-team — but does NOT merge into dev-v5/master-v5 (those branches are left
 # untouched). Any base branch other than master-v5 is treated as staging.
 on:
@@ -81,15 +81,17 @@ jobs:
         id: targets
         run: |
           if [ "$IS_STAGING" = "true" ]; then
+            echo "DEPS_REPO=ashfaqcometchat/card-renderer" >> $GITHUB_OUTPUT
             echo "PUBLIC_REPO=ashfaqcometchat/card-renderer" >> $GITHUB_OUTPUT
             echo "PUBLIC_BRANCH=chat-sdk-citest" >> $GITHUB_OUTPUT
             echo "CLOUDSMITH_PROD_REPO=cometchat/call-team" >> $GITHUB_OUTPUT
-            echo "STAGING run: deps = real dependencies-android (branch/bump LOCAL only, no push/merge), Cloudsmith = call-team, public repo = ashfaqcometchat/card-renderer (chat-sdk-citest)"
+            echo "STAGING run: deps GPG-signing test on ashfaqcometchat/card-renderer (branch+signed commit+merge dev-v5→master-v5+tag; deps AAR publish skipped), Cloudsmith = call-team, public repo = card-renderer (chat-sdk-citest)"
           else
+            echo "DEPS_REPO=cometchat-team/dependencies-android" >> $GITHUB_OUTPUT
             echo "PUBLIC_REPO=cometchat/chat-sdk-android" >> $GITHUB_OUTPUT
             echo "PUBLIC_BRANCH=v5" >> $GITHUB_OUTPUT
             echo "CLOUDSMITH_PROD_REPO=cometchat/cometchat" >> $GITHUB_OUTPUT
-            echo "LIVE run: deps = dependencies-android (push + merge dev-v5→master-v5), public repo = cometchat/chat-sdk-android (v5), Cloudsmith = cometchat/cometchat"
+            echo "LIVE run: deps = dependencies-android (push + merge dev-v5→master-v5 + publish), public repo = cometchat/chat-sdk-android (v5), Cloudsmith = cometchat/cometchat"
           fi
 
       # ── Release notes from the PR description ──
@@ -110,86 +112,141 @@ jobs:
           echo "cloudsmith.apikey=${{ secrets.CLOUDSMITH_API_KEY_ASHFAQ }}" >> local.properties
           echo "sdk.dir=$ANDROID_HOME" >> local.properties
 
+      # ── Import GPG key + configure git to sign ALL commits/merges globally.
+      #    dependencies-android's dev-v5/master-v5 (and the public repo) require
+      #    verified signatures — unsigned commits are rejected by branch protection. ──
+      - name: Set up GPG signing
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          if [ -z "$GPG_PRIVATE_KEY" ] || [ -z "$GPG_PASSPHRASE" ]; then
+            echo "ERROR: GPG_PRIVATE_KEY / GPG_PASSPHRASE not configured — signed commits are mandatory"
+            exit 1
+          fi
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --passphrase "$GPG_PASSPHRASE" --import
+          mkdir -p ~/.gnupg
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          gpgconf --kill gpg-agent || true
+          GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format long 2>/dev/null | grep sec | head -1 | awk '{print $2}' | cut -d'/' -f2)
+          echo "Using GPG key: $GPG_KEY_ID"
+          git config --global user.name "ashfaqcometchat"
+          git config --global user.email "mohd.ashfaq@cometchat.com"
+          git config --global user.signingkey "$GPG_KEY_ID"
+          git config --global commit.gpgsign true
+          # Pre-cache the passphrase so signing is non-interactive
+          echo "test" | gpg --batch --yes --passphrase "$GPG_PASSPHRASE" --pinentry-mode loopback -s -u "$GPG_KEY_ID" > /dev/null 2>&1
+
       # ══════════════════════════════════════════════════════════════
-      # 1) dependencies-android (cometchat-team/dependencies-android) — always
-      #    the real repo. LIVE: branch v<version> off dev-v5, bump, push, merge
-      #    into dev-v5 then master-v5, publish to production. STAGING: branch +
-      #    bump + PUSH the version branch, publish to call-team — but skip both
-      #    merges, so dev-v5/master-v5 are left untouched.
+      # 1) Dependencies flow.
+      #    LIVE: cometchat-team/dependencies-android — branch release-v5-<version>
+      #      off dev-v5, bump versionName, signed commit, push, signed-merge into
+      #      dev-v5 then master-v5, publish deps AAR to production.
+      #    STAGING: ashfaqcometchat/card-renderer — a GPG-signing smoke test that
+      #      exercises the SAME signed commit + merge dev-v5→master-v5 + tag flow
+      #      (using a RELEASE_VERSION.txt marker instead of the deps build.gradle),
+      #      so the signing path that broke in production is validated safely.
+      #      The deps AAR gradle publish is SKIPPED in staging.
       # ══════════════════════════════════════════════════════════════
 
-      # ── (a) Clone the dependencies project ──
-      - name: Clone dependencies-android
+      # ── (a) Clone the dependencies repo (real deps live / card-renderer staging) ──
+      - name: Clone dependencies repo
         env:
           GH_TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN_ASHFAQ }}
+          DEPS_REPO: ${{ steps.targets.outputs.DEPS_REPO }}
         run: |
-          git clone https://x-access-token:$GH_TOKEN@github.com/cometchat-team/dependencies-android.git /tmp/dependencies-android
+          git clone "https://x-access-token:$GH_TOKEN@github.com/$DEPS_REPO.git" /tmp/dependencies-android
 
-      # ── (b) Branch v<version> off dev-v5 and bump the version there ──
+      # ── (staging) card-renderer has no dev-v5/master-v5 — create them off its
+      #    default branch so the merge flow below mirrors live 1:1. ──
+      - name: (staging) Ensure dev-v5 and master-v5 exist in card-renderer
+        if: env.IS_STAGING == 'true'
+        run: |
+          cd /tmp/dependencies-android
+          DEFAULT=$(git remote show origin | sed -n 's/.*HEAD branch: //p')
+          echo "Default branch: $DEFAULT"
+          for BR in dev-v5 master-v5; do
+            if git ls-remote --exit-code --heads origin "$BR" >/dev/null 2>&1; then
+              echo "$BR already exists"
+            else
+              git checkout -B "$BR" "origin/$DEFAULT"
+              git push -u origin "$BR"
+              echo "Created $BR off $DEFAULT"
+            fi
+          done
+
+      # ── (b) Branch release-v5-<version> off dev-v5 + make a signed commit ──
       - name: Create version branch and update dependencies version
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
         run: |
           cd /tmp/dependencies-android
-          git config user.name "ashfaqcometchat"
-          git config user.email "mohd.ashfaq@cometchat.com"
 
+          BRANCH="release-v5-$VERSION"
+          git fetch origin
           git checkout dev-v5
-          git checkout -b "v$VERSION"
+          git checkout -b "$BRANCH"
 
-          BG="cometchat-pro-android-dependencies/build.gradle"
-          sed -i "s/versionName \".*\"/versionName \"$VERSION\"/" "$BG"
-          grep -n "versionName" "$BG"
+          if [ "$IS_STAGING" = "true" ]; then
+            # card-renderer isn't the deps project — write a marker so there is a
+            # real (signed) commit to merge and tag.
+            echo "$VERSION" > RELEASE_VERSION.txt
+          else
+            BG="cometchat-pro-android-dependencies/build.gradle"
+            sed -i "s/versionName \".*\"/versionName \"$VERSION\"/" "$BG"
+            grep -n "versionName" "$BG"
+          fi
 
           git add -A
           if git diff --cached --quiet; then
-            echo "Version already $VERSION — nothing to commit"
+            echo "Nothing to commit"
           else
-            git commit -m "v$VERSION"
+            git commit -S -m "v$VERSION"
           fi
 
-          # Push the version branch in both live and staging. (Staging still skips
-          # the merges into dev-v5/master-v5 — only this branch is created.)
-          git push -u origin "v$VERSION"
+          # Fresh branch name every run (version is unique), so a plain push;
+          # dev-v5/master-v5 are only updated by the signed merges below.
+          git push -u origin "$BRANCH"
 
-      # ── (c) Merge the version branch into dev-v5 (LIVE only) ──
+      # ── (c) Signed merge of the version branch into dev-v5 ──
       - name: Merge version branch into dev-v5
-        if: env.IS_STAGING != 'true'
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
         run: |
           cd /tmp/dependencies-android
+          BRANCH="release-v5-$VERSION"
           git checkout dev-v5
-          git merge --no-ff -m "Merge v$VERSION into dev-v5" "v$VERSION"
+          git merge --no-ff -S -m "Merge $BRANCH into dev-v5" "$BRANCH"
           git push origin dev-v5
 
-      # ── (d) Merge dev-v5 into master-v5 (LIVE only) ──
+      # ── (d) Signed merge of dev-v5 into master-v5 ──
       - name: Merge dev-v5 into master-v5
-        if: env.IS_STAGING != 'true'
         run: |
           cd /tmp/dependencies-android
           git checkout master-v5
-          git merge --no-ff -m "Merge dev-v5 into master-v5" dev-v5
+          git merge --no-ff -S -m "Merge dev-v5 into master-v5" dev-v5
           git push origin master-v5
 
+      # ── (staging) Signed tag on card-renderer, to exercise tag signing too ──
+      - name: (staging) Create signed tag in card-renderer
+        if: env.IS_STAGING == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.VERSION }}
+        run: |
+          cd /tmp/dependencies-android
+          git tag -s "v$VERSION" -m "v$VERSION"
+          git push origin "v$VERSION"
+
+      # ── Publish the deps AAR to production (LIVE only — card-renderer isn't the
+      #    deps gradle project, so staging has nothing to publish here). ──
       - name: Publish dependencies AAR
+        if: env.IS_STAGING != 'true'
         run: |
           cd /tmp/dependencies-android
           echo "cloudsmith.username=token" >> local.properties
           echo "cloudsmith.apikey=${{ secrets.CLOUDSMITH_API_KEY_ASHFAQ }}" >> local.properties
           echo "sdk.dir=$ANDROID_HOME" >> local.properties
-
-          # The deps project hardcodes production Cloudsmith (cometchat/cometchat)
-          # in its build.gradle. In staging (HEAD is the local v<version> branch),
-          # rewrite it to call-team in the working tree only — never committed —
-          # so the staging deps AAR goes to call-team, not production.
-          if [ "$IS_STAGING" = "true" ]; then
-            sed -i 's|api-g.cloudsmith.io/maven/cometchat/cometchat|api-g.cloudsmith.io/maven/cometchat/call-team|' \
-              cometchat-pro-android-dependencies/build.gradle
-            echo "STAGING: deps publish redirected to cometchat/call-team"
-            grep -n "api-g.cloudsmith.io" cometchat-pro-android-dependencies/build.gradle
-          fi
-
           ./gradlew clean
           ./gradlew publish --stacktrace
 

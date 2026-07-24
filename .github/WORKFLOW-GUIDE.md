@@ -68,7 +68,10 @@ in the branch protection rules so a red run blocks the merge.
    - (c) repo: `cometchat/call-team`
    - (d) publish: `publishMavenPublicationToCloudsmithRepository`
 3. **GitHub release** on `cometchat-team/chat-sdk-android`
-   - tag + name: `v<base>-<epoch>`, target branch `dev-v5`
+   - tag + name: **`v<base>`** — clean, **no epoch** (e.g. `v5.0.5`). Only Cloudsmith
+     call-team carries the `-<epoch>` suffix. Repeated dev-v5 merges of the same base
+     update the same `v<base>` release.
+   - target branch `dev-v5`
    - notes/changelog: the merged PR's description, verbatim
 
 ### Testing the internal-release flow (sandbox)
@@ -84,38 +87,52 @@ without touching `dev-v5`:
 4. Clean up: delete the release + tag; delete or keep the branch for next time. Sandbox
    versions on call-team are harmless (internal repo, unique epoch versions).
 
-Requires only the `CLOUDSMITH_API_KEY_HRITIKA` secret. The GA flow (`release-v5.yml`) has
-**no sandbox trigger on purpose** — it pushes to dependencies-android, the public repo, and
-production Cloudsmith, so it must not run outside a real release.
+Requires only the `CLOUDSMITH_API_KEY_HRITIKA` secret. The GA flow has its own separate sandbox,
+`v5-ga-tests` (below), which redirects every destination to safe targets.
 
 ### Testing the GA flow (staging — `v5-ga-tests`)
 
-Merging a PR into **`v5-ga-tests`** runs `release-v5.yml` end to end against safe
-targets — the steps are identical, only the destinations differ:
+Merging a PR into **`v5-ga-tests`** runs `release-v5.yml` end to end against safe targets. The
+steps are the same, only the destinations differ — and the deps flow becomes a **GPG-signing
+smoke test** against card-renderer (staging deliberately exercises the signed commit + merge +
+tag path that broke in production, since the real deps merges can't be run against production):
 
 | | Live (`master-v5`) | Staging (`v5-ga-tests`) |
 |---|---|---|
 | Version | exact base, e.g. `5.0.5` | `5.0.5-staging.<epoch>` (unique per run) |
-| dependencies-android | `cometchat-team/dependencies-android` — branch → push → merge dev-v5 → merge master-v5 → publish (production) | **Same real repo**: branch + bump + **push the `v<version>` branch** + publish to **call-team**; **no merges** into dev-v5/master-v5 (those branches stay untouched) |
+| Deps repo | `cometchat-team/dependencies-android` | **`ashfaqcometchat/card-renderer`** (dev-v5/master-v5 created off its default branch if missing) |
+| Deps commit | bump `versionName` in `cometchat-pro-android-dependencies/build.gradle` | write `RELEASE_VERSION.txt` marker (card-renderer isn't the deps project) |
+| Deps git flow | branch `release-v5-<version>` → **signed** commit → **signed** merge dev-v5 → **signed** merge master-v5 | **identical**, plus a **signed tag** `v<version>` — this is the whole point of the staging test |
+| Deps AAR publish | `chat-sdk-android-dependencies:<version>` → `cometchat/cometchat` | **skipped** (nothing to publish from card-renderer) |
+| SDK AAR | `chat-sdk-android:<version>` → `cometchat/cometchat` | → `cometchat/call-team` |
 | Mirror target | `cometchat/chat-sdk-android` @ `v5` | `ashfaqcometchat/card-renderer` @ `chat-sdk-citest` |
-| Cloudsmith | `cometchat/cometchat` (production) | `cometchat/call-team` (internal) |
 | GitHub release | public repo, normal | card-renderer, marked **pre-release** |
+
+**Verifying GPG signing after a staging run** — on `card-renderer`: the new merge commits on
+`dev-v5`/`master-v5` and the tag `v<version>` should all show a green **"Verified"** badge. If
+they do, signing is proven and a real GA into the protected `dependencies-android` will pass.
+(Note: card-renderer's dev-v5/master-v5 are not protected, so this proves the signing
+*mechanism* — to also test the *protection gate*, enable "Require signed commits" on
+card-renderer's `dev-v5`.)
 
 Same secrets as live (Ashfaq's PAT must have write on `card-renderer` — it's his repo).
 Setup: `git checkout dev-v5 && git checkout -b v5-ga-tests && git push -u origin v5-ga-tests`,
-then open a PR into it and merge. Clean up staging tags/releases on card-renderer afterwards.
+then open a PR into it and merge. Clean up staging branches/tags/releases on card-renderer
+afterwards.
 
 ## Flow 3: PR merged into `master-v5` — public GA release
 
 `release-v5.yml`, using **Ashfaq's credentials** throughout:
 
-1. **dependencies-android publish** (`cometchat-team/dependencies-android`)
+1. **dependencies-android publish** (`cometchat-team/dependencies-android`) — all commits/merges
+   **GPG-signed** (a `Set up GPG signing` step configures signing globally; dev-v5/master-v5
+   require verified signatures)
    - clone the repo
-   - create branch `v<version>` off `dev-v5`; bump `versionName` in
+   - create branch `release-v5-<version>` off `dev-v5`; bump `versionName` in
      `cometchat-pro-android-dependencies/build.gradle` (version taken from the SDK's
-     `build.gradle`); commit + push
-   - merge `v<version>` → `dev-v5` (direct merge + push)
-   - checkout `master-v5`, merge `dev-v5` → `master-v5`, push
+     `build.gradle`); **signed** commit + push
+   - **signed** merge `release-v5-<version>` → `dev-v5` (direct merge + push)
+   - checkout `master-v5`, **signed** merge `dev-v5` → `master-v5`, push
    - `./gradlew clean` then `./gradlew publish` (that project publishes to
      `cometchat/cometchat` — the URL is hardcoded in its own build.gradle)
 2. **Mirror to the public repo** (`cometchat/chat-sdk-android`, branch `v5`) — copies everything

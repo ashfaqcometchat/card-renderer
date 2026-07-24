@@ -323,6 +323,27 @@ public class CometChatConstants {
         public static final String ERROR_INVALID_CONVERSATION_ID_MESSAGE = "The conversation ID provided is invalid. Please provide a valid conversation ID";
         public static final String ERROR_MESSAGE_NOT_A_RECEIVER_MESSAGE = "The user with uid %s is not a receiver of the message with id %s";
 
+        // Multiple-attachment upload errors
+        public static final String ERR_FILE_COUNT_EXCEEDED = "ERR_FILE_COUNT_EXCEEDED";
+        public static final String ERR_FILE_COUNT_EXCEEDED_MESSAGE = "The files must not have more than %s items.";
+        public static final String ERR_FILE_SIZE_EXCEEDED = "ERR_FILE_SIZE_EXCEEDED";
+        public static final String ERR_FILE_SIZE_EXCEEDED_MESSAGE = "The file size is %s, which exceeds the allowed limit of %s.";
+        public static final String ERR_INVALID_FILE_OBJECT = "ERR_INVALID_FILE_OBJECT";
+        public static final String ERR_INVALID_FILE_OBJECT_MESSAGE = "The file is invalid.";
+        public static final String ERR_PRESIGN_FAILED = "ERR_PRESIGN_FAILED";
+        public static final String ERR_PRESIGN_FAILED_MESSAGE = "Failed to obtain an upload URL for the file.";
+        public static final String ERR_PRESIGN_REJECTED = "ERR_PRESIGN_REJECTED";
+        public static final String ERR_PRESIGN_REJECTED_MESSAGE = "The file was rejected by the server (billing, plan, or content-type policy).";
+        public static final String ERR_PRESIGNED_URL_EXPIRED = "ERR_PRESIGNED_URL_EXPIRED";
+        public static final String ERR_PRESIGNED_URL_EXPIRED_MESSAGE = "The upload URL expired before the file finished uploading.";
+        public static final String ERR_PRESIGNED_URL_MODE_NOT_ENABLED = "Presigned URL mode is not enabled for this app";
+        public static final String ERR_S3_UPLOAD_FAILED = "ERR_S3_UPLOAD_FAILED";
+        public static final String ERR_S3_UPLOAD_FAILED_MESSAGE = "The file failed to upload to storage.";
+        public static final String ERR_UPLOAD_STALLED = "ERR_UPLOAD_STALLED";
+        public static final String ERR_UPLOAD_STALLED_MESSAGE = "The upload stalled with no progress.";
+        public static final String ERR_UPLOAD_CANCELLED = "ERR_UPLOAD_CANCELLED";
+        public static final String ERR_UPLOAD_CANCELLED_MESSAGE = "The upload was cancelled.";
+
         // Settings file errors
         public static final String ERROR_SETTINGS_FILE_NOT_FOUND = "ERROR_SETTINGS_FILE_NOT_FOUND";
         public static final String ERROR_SETTINGS_FILE_NOT_FOUND_MESSAGE = "cometchat-settings.json not found. Ensure the file exists at app/src/main/assets/.";
@@ -343,6 +364,7 @@ public class CometChatConstants {
         public static final String KEY_SEND_TEXT_MESSAGE_TYPE = "type";
         public static final String KEY_SEND_TEXT_MESSAGE_TEXT = "text";
         public static final String KEY_SEND_TEXT_METADATA = "metadata";
+        public static final String KEY_INJECTED_METADATA = "@injected";
         public static final String KEY_SEND_TEXT_RECEIVER_TYPE = "receiverType";
         public static final String KEY_SEND_MESSAGE_TYPE = "type";
         public static final String KEY_MESSAGE = "message";
@@ -368,6 +390,18 @@ public class CometChatConstants {
         public static final String KEY_ATTACHMENT_SIZE = "size";
         public static final String KEY_ATTACHMENT_MIMETYPE = "mimeType";
         public static final String KEY_ATTACHMENT_URL = "url";
+        public static final String KEY_ATTACHMENT_METADATA = "metadata";
+        public static final String KEY_UPLOAD_FILES = "files";
+        public static final String KEY_UPLOAD_FILE_ID = "fileId";
+        // Metadata-key conventions for multi-attachment batch grouping. The SDK
+        // never reads or writes these — apps/UIKits stamp them into message
+        // metadata at send and interpret them at render; published here only so
+        // every consumer agrees on the literal key names.
+        public static final String KEY_METADATA_BATCH_ID = "batchId";
+        public static final String KEY_METADATA_BATCH_INDEX = "batchIndex";
+        public static final String KEY_METADATA_BATCH_SIZE = "batchSize";
+        public static final String KEY_METADATA_AUDIO_TYPE = "audioType";
+        public static final String AUDIO_TYPE_VOICE_NOTE = "voice_note";
         public static final String KEY_CUSTOM_SUB_TYPE = "subType";
         public static final String KEY_CUSTOM_CUSTOM_DATA = "customData";
         public static final String KEY_INTERACTIVE_INTERACTIVE_DATA = "interactiveData";

@@ -86,6 +86,7 @@ class ApiConnection {
     private static final String URL_LOGIN = "/users/%s/auth_tokens";
     private static final String URL_LOGIN_TOKEN = "/me";
     private static final String URL_SEND_MESSAGE = "/messages";
+    private static final String URL_FILES_UPLOAD_URL = "/files/upload-url";
     private static final String URL_CREATE_GROUP = "/groups";
     private static final String URL_FETCH_SETTINGS = "/settings";
     private static final String URL_FLAG_MESSAGE = "/messages/%s/flagged";
@@ -278,6 +279,19 @@ class ApiConnection {
         RequestBody requestBody;
         if (body != null)
             requestBody = getRequestBodyFromJSONArray(body);
+        else
+            requestBody = new FormBody.Builder().build();
+        return new Request.Builder()
+                .url(URLDecoder.decode(url))
+                .post(requestBody)
+                .headers(headers)
+                .build();
+    }
+
+    private Request createPOSTWithJson(String url, Headers headers, String body) {
+        RequestBody requestBody;
+        if (body != null)
+            requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), body);
         else
             requestBody = new FormBody.Builder().build();
         return new Request.Builder()
@@ -485,6 +499,54 @@ class ApiConnection {
             }
         }
 
+    }
+
+    /**
+     * Requests pre-signed upload forms for one or more files from the chat-api.
+     * The {@code filesBody} is a JSON object of the shape
+     * {@code { "files": { "<fileId>": { "name", "size", "mimeType" } } }}.
+     * The response is delivered raw to the listener for per-file parsing.
+     */
+    void requestUploadUrls(String filesBody, final APIConnectionListener listener) {
+        Request request = createPOSTWithJson(getApiUrl(URL_FILES_UPLOAD_URL), getDefaultHeaders(), filesBody);
+        makeApiCall(request, listener, false);
+    }
+
+    /**
+     * Uploads a single file's bytes directly to storage using a pre-signed POST
+     * form. Builds a multipart body with every policy field first and the file
+     * part last (storage policy requirement), on a clean request that carries
+     * <b>no</b> SDK auth headers (storage authorizes via the presigned policy
+     * fields only).
+     *
+     * @param url       the storage upload URL ({@code request.url} from presign)
+     * @param formFields the policy fields ({@code request.body} from presign)
+     * @param fileName  the file name for the file part
+     * @param fileBody  the file's request body (typically wrapped in
+     *                  {@code ProgressRequestBody} for progress)
+     * @param callback  OkHttp callback for success/failure
+     * @return the OkHttp {@link Call} (already enqueued) so the caller can cancel it
+     */
+    Call uploadToStorage(String url,
+                         Map<String, String> formFields,
+                         String fileName,
+                         RequestBody fileBody,
+                         Callback callback) {
+        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        if (formFields != null) {
+            for (Map.Entry<String, String> field : formFields.entrySet()) {
+                builder.addFormDataPart(field.getKey(), field.getValue());
+            }
+        }
+        // The file part MUST be added last (storage policy requirement).
+        builder.addFormDataPart("file", fileName, fileBody);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(builder.build())
+                .build();
+        Call call = okHttpFileClient.newCall(request);
+        call.enqueue(callback);
+        return call;
     }
 
     void createGroup(Group group, final APIConnectionListener listener) {

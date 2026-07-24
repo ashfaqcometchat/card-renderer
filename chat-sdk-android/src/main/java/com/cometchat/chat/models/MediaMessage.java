@@ -391,7 +391,7 @@ public class MediaMessage extends BaseMessage {
 
                         //Modify metadata all urls
                         if(dataObject.has(CometChatConstants.MessageKeys.KEY_SEND_TEXT_METADATA)){
-                            if (dataObject.getJSONObject(CometChatConstants.MessageKeys.KEY_SEND_TEXT_METADATA).has("@injected")){
+                            if (dataObject.getJSONObject(CometChatConstants.MessageKeys.KEY_SEND_TEXT_METADATA).has(CometChatConstants.MessageKeys.KEY_INJECTED_METADATA)){
                                 if (fat != null && secureMediaHost != null){
                                     JSONObject metadataObject = dataObject.getJSONObject(CometChatConstants.MessageKeys.KEY_SEND_TEXT_METADATA);
                                     JSONObject modifiedJsonObject = modifyUrls(metadataObject, secureMediaHost, fat);

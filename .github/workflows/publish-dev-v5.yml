@@ -81,7 +81,9 @@ jobs:
           echo "cloudsmith.apikey=${{ secrets.CLOUDSMITH_API_KEY_HRITIKA }}" >> local.properties
           echo "sdk.dir=$ANDROID_HOME" >> local.properties
 
-      # ── Snapshot version: <base from build.gradle>-<epoch_seconds>, unique per build ──
+      # ── Versions:
+      #    VERSION      = <base>-<epoch>  → Cloudsmith call-team (unique per build)
+      #    BASE_VERSION = <base>          → GitHub release tag (clean v5.x.x, no epoch) ──
       - name: Generate snapshot version
         id: version
         run: |
@@ -92,7 +94,9 @@ jobs:
           fi
           VERSION="${BASE_VERSION}-$(date +%s)"
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "Snapshot version: $VERSION"
+          echo "BASE_VERSION=$BASE_VERSION" >> $GITHUB_OUTPUT
+          echo "Cloudsmith version: $VERSION"
+          echo "GitHub tag: v$BASE_VERSION"
 
       # ── (b) Build the distributable (minified) AAR ──
       - name: Build AAR
@@ -118,7 +122,8 @@ jobs:
 
       # ══════════════════════════════════════════════════════════════
       # 3) GitHub release on this repo (cometchat-team/chat-sdk-android)
-      #    Tag = v<version>, target dev-v5, notes = the PR description.
+      #    Tag = v<base> (clean, NO epoch), target dev-v5, notes = PR description.
+      #    Repeated dev-v5 merges of the same base update the same v<base> release.
       # ══════════════════════════════════════════════════════════════
       - name: Extract release notes from PR description
         id: notes
@@ -133,8 +138,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version.outputs.VERSION }}
-          name: v${{ steps.version.outputs.VERSION }}
+          tag_name: v${{ steps.version.outputs.BASE_VERSION }}
+          name: v${{ steps.version.outputs.BASE_VERSION }}
           body: ${{ steps.notes.outputs.BODY }}
           target_commitish: ${{ github.event.pull_request.base.ref }}
           draft: false
