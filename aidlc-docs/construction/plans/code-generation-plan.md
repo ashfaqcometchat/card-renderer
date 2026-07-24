@@ -1,92 +1,180 @@
-# Code Generation Plan
+# Code Generation Plan — ENG-35195: Notification Feed Module
 
-## Linear Sub-Issues
-
-| Unit | Linear ID | Title |
-|------|-----------|-------|
-| Unit 1 | ENG-34364 | Models & Parser |
-| Unit 2 | ENG-34365 | Theme & Core Infrastructure |
-| Unit 3 | ENG-34366 | Content & Data Renderers |
-| Unit 4 | ENG-34367 | Layout & Interactive Renderers |
-| Unit 5 | ENG-34368 | Public API & Integration |
-
-Parent: ENG-34127
+## Workspace Root
+`/Users/admin/Ashfaq/Android/V5-Android/chat-sdk-android`
 
 ## Code Location
+All source files go in:
+`chat-sdk-android/src/main/java/com/cometchat/chat/`
 
-All code goes in the `:cards` library module:
-- **Source**: `cards/src/main/java/com/cometchat/cards/`
-- **Tests**: `cards/src/test/java/com/cometchat/cards/`
-- **Test fixtures**: `cards/src/test/resources/fixtures/`
+## Unit Execution Order
 
-## Execution Steps
+---
 
-### Unit 1: Models & Parser (ENG-34364)
+## Unit 1: Data Models & Enums (ENG-35196)
 
-- [x] Step 1.1: Create `:cards` Gradle module with build.gradle.kts, dependencies, Kotlin serialization plugin
-- [x] Step 1.2: Create enum classes — CometChatCardThemeMode, CometChatCardLogLevel
-- [x] Step 1.3: Create supporting types — CometChatCardColorValue, CometChatCardColorOrHex (with custom serializer), CometChatCardPadding (with custom serializer), CometChatCardDimension (with custom serializer)
-- [x] Step 1.4: Create CometChatCardAction sealed interface + 9 action data classes with @Serializable/@SerialName
-- [x] Step 1.5: Create CometChatCardElement sealed interface + 20 element data classes with @Serializable/@SerialName (including CometChatCardAccordionHeader custom serializer, CometChatCardTabItem)
-- [x] Step 1.6: Create CometChatCardContainerStyle, CometChatCardSchema
-- [x] Step 1.7: Create CometChatCardSchemaParser with SerializersModule, parse() and serialize() methods
-- [x] Step 1.8: Create CometChatCardActionEvent, CometChatCardActionCallback
-- [x] Step 1.9: Unit tests for parser — all 20 element types, all 9 action types, round-trip, unknown fields, malformed JSON
-- [x] Step 1.10: Unit 1 summary documentation
+### Step 1: Create FeedEngagementType enum
+- [x] Create `chat-sdk-android/src/main/java/com/cometchat/chat/enums/FeedEngagementType.java`
+- Pattern: Follow `ModerationStatus.java` — enum with String value, `getValue()`, static `get(String)`
+- Values: VIEWED("viewed"), CLICKED("clicked"), INTERACTED("interacted")
 
-### Unit 2: Theme & Core Infrastructure (ENG-34365)
+### Step 2: Create FeedReadState enum
+- [x] Create `chat-sdk-android/src/main/java/com/cometchat/chat/enums/FeedReadState.java`
+- Pattern: Same as FeedEngagementType
+- Values: READ("read"), UNREAD("unread"), ALL("all")
 
-- [x] Step 2.1: Create CometChatCardDefaultTheme — all color tokens + typography scale
-- [x] Step 2.2: Create CometChatCardThemeOverride data class with nullable fields
-- [x] Step 2.3: Create CometChatCardResolvedTheme and CometChatCardThemeResolver — resolveColor, resolveUrl, resolveTheme, resolveEffectiveMode
-- [x] Step 2.4: Create CometChatCardActionEmitter — emit, isValidAction
-- [x] Step 2.5: Create CometChatCardLogger — log level filtering, android.util.Log backend
-- [x] Step 2.6: Create CometChatCardElementRenderer interface (renderView + RenderComposable)
-- [x] Step 2.7: Create CometChatCardElementRegistry — register, getRenderer, registerDefaults stub
-- [x] Step 2.8: Create CometChatCardRenderContext — all fields, withDepth()
-- [x] Step 2.9: Create CometChatCardLoadingStateManager — setLoading, isLoading, clearAll
-- [x] Step 2.10: Unit tests for theme resolver, action emitter, logger, loading state manager
-- [x] Step 2.11: Unit 2 summary documentation
+### Step 3: Create NotificationFeedItem model
+- [x] Create `chat-sdk-android/src/main/java/com/cometchat/chat/models/NotificationFeedItem.java`
+- Fields: id (String), category (String), content (JSONObject), readAt (Long nullable), deliveredAt (Long nullable), sentAt (long), metadata (HashMap<String, Object>), tags (List<String>), sender (String), receiver (String), receiverType (String)
+- Implements: Parcelable
+- Methods: getters/setters, `isRead()`, `fromJson(JSONObject)`, `listFromJson(JSONObject)`, `toString()`, `contentEquals()`
+- JSON mapping: backend `subCategory` → `category`
 
-### Unit 3: Content & Data Renderers (ENG-34366)
+### Step 4: Create NotificationCategory model
+- [x] Create `chat-sdk-android/src/main/java/com/cometchat/chat/models/NotificationCategory.java`
+- Fields: id (String), label (String)
+- Implements: Parcelable
+- Methods: getters/setters, `fromJson(JSONObject)`, `listFromJson(JSONObject)`, `toString()`
 
-- [x] Step 3.1: Create TextElementRenderer (renderView + RenderComposable)
-- [x] Step 3.2: Create ImageElementRenderer (Coil View + Compose, custom shimmer, fallback)
-- [x] Step 3.3: Create IconElementRenderer (Coil, color tinting)
-- [x] Step 3.4: Create AvatarElementRenderer (image or fallback initials)
-- [x] Step 3.5: Create BadgeElementRenderer
-- [x] Step 3.6: Create DividerElementRenderer
-- [x] Step 3.7: Create SpacerElementRenderer
-- [x] Step 3.8: Create ChipElementRenderer
-- [x] Step 3.9: Create ProgressBarElementRenderer (value clamping 0-100)
-- [x] Step 3.10: Create CodeBlockElementRenderer (monospace, language label)
-- [x] Step 3.11: Create MarkdownElementRenderer (Html.fromHtml + AnnotatedString, link tap → openUrl)
-- [x] Step 3.12: Create TableElementRenderer (headers, rows, striped, borders)
-- [x] Step 3.13: Unit tests for all 12 renderers
-- [x] Step 3.14: Unit 3 summary documentation
+### Step 5: Create PushNotification model
+- [x] Create `chat-sdk-android/src/main/java/com/cometchat/chat/models/PushNotification.java`
+- Fields: id (String), announcementId (String), campaignId (String nullable), source (String)
+- Implements: Parcelable
+- Methods: getters/setters, `fromJson(JSONObject)`, `toString()`
 
-### Unit 4: Layout & Interactive Renderers (ENG-34367)
+### Step 6: Add constants to CometChatConstants
+- [x] Modify `chat-sdk-android/src/main/java/com/cometchat/chat/constants/CometChatConstants.java`
+- Add inner interface `NotificationFeedKeys` with JSON key constants (id, subCategory, data, readAt, deliveredAt, sentAt, metadata, tags, sender, receiver, receiverType)
+- Add inner interface `NotificationCategoryKeys` with constants (id, label)
+- Add inner interface `PushNotificationKeys` with constants (id, announcementId, campaignId, source)
+- Add API path constants for all notification feed endpoints
 
-- [x] Step 4.1: Create RowElementRenderer (horizontal, scrollable/peek/snap, wrap)
-- [x] Step 4.2: Create ColumnElementRenderer (vertical, align)
-- [x] Step 4.3: Create GridElementRenderer (multi-column)
-- [x] Step 4.4: Create AccordionElementRenderer (expand/collapse, dual header, animation)
-- [x] Step 4.5: Create TabsElementRenderer (tab switching, content panels)
-- [x] Step 4.6: Create ButtonElementRenderer (4 variants, icon, size, fullWidth, disabled, loading)
-- [x] Step 4.7: Create IconButtonElementRenderer (action wiring, loading)
-- [x] Step 4.8: Create LinkElementRenderer (action wiring)
-- [x] Step 4.9: Unit tests for all 8 renderers + recursive rendering + depth enforcement
-- [x] Step 4.10: Unit 4 summary documentation
+### Step 7: Unit 1 Summary
+- [x] Create `aidlc-docs/construction/notification-feed/code/unit-1-summary.md`
 
-### Unit 5: Public API & Integration (ENG-34368)
+---
 
-- [x] Step 5.1: Update settings.gradle.kts to include `:cards` module
-- [x] Step 5.2: Create CometChatCardView (FrameLayout) — setCardSchema, setThemeMode, setActionCallback, setThemeOverride, setLogLevel, setElementLoading, getContainerStyle, render pipeline, system theme observation
-- [x] Step 5.3: Create CometChatCardComposable — @Composable entry point, isSystemInDarkTheme, onContainerStyle
-- [x] Step 5.4: Create registry initialization function (registerDefaults with all 20 renderers)
-- [x] Step 5.5: Error handling — fallbackText display, placeholder view, element-level try-catch
-- [x] Step 5.6: Update :app module — add dependency on :cards, create demo activity
-- [x] Step 5.7: Create shared test fixtures (13 JSON files)
-- [x] Step 5.8: Integration tests — full card rendering pipeline
-- [x] Step 5.9: Maven publish configuration in build.gradle.kts
-- [x] Step 5.10: Unit 5 summary documentation
+## Unit 2: NotificationFeedRequestBuilder (ENG-35197)
+
+### Step 8: Create NotificationFeedRequest class
+- [ ] Create `chat-sdk-android/src/main/java/com/cometchat/chat/core/NotificationFeedRequest.java`
+- Outer class: `NotificationFeedRequest` with `fetchNext(CometChat.CallbackListener<List<NotificationFeedItem>>)`
+- Inner class: `NotificationFeedRequestBuilder` with setLimit, setReadState, setCategory, setChannelId, setTags, setDateFrom, setDateTo, build()
+- Pagination: cursor-based (store cursor from response, return empty on exhaustion)
+- HTTP: GET `/v3.0/campaigns/notification-feed` with query params
+- Pattern: Follow `UsersRequest.java` structure
+
+### Step 9: Unit 2 Summary
+- [ ] Create `aidlc-docs/construction/notification-feed/code/unit-2-summary.md`
+
+---
+
+## Unit 3: NotificationCategoriesRequestBuilder (ENG-35198)
+
+### Step 10: Create NotificationCategoriesRequest class
+- [ ] Create `chat-sdk-android/src/main/java/com/cometchat/chat/core/NotificationCategoriesRequest.java`
+- Outer class: `NotificationCategoriesRequest` with `fetchNext(CometChat.CallbackListener<List<NotificationCategory>>)`
+- Inner class: `NotificationCategoriesRequestBuilder` with setLimit, build()
+- Pagination: cursor-based
+- HTTP: GET `/v3.0/campaigns/templates/categories` with query params
+
+### Step 11: Unit 3 Summary
+- [ ] Create `aidlc-docs/construction/notification-feed/code/unit-3-summary.md`
+
+---
+
+## Unit 4: Engagement & Reporting Methods (ENG-35199)
+
+### Step 12: Add static methods to CometChat.java
+- [ ] Modify `chat-sdk-android/src/main/java/com/cometchat/chat/core/CometChat.java`
+- Add methods:
+  - `markFeedItemAsDelivered(NotificationFeedItem, CallbackListener<Void>)`
+  - `markFeedItemsAsDelivered(List<NotificationFeedItem>, CallbackListener<Void>)`
+  - `markFeedItemAsRead(NotificationFeedItem, CallbackListener<Void>)`
+  - `markAllFeedItemsAsRead(CallbackListener<Void>)`
+  - `reportFeedEngagement(NotificationFeedItem, FeedEngagementType, CallbackListener<Void>)`
+  - `getNotificationFeedUnreadCount(CallbackListener<Integer>)`
+  - `getNotificationFeedItem(String, CallbackListener<NotificationFeedItem>)`
+  - `markPushNotificationDelivered(PushNotification, CallbackListener<Void>)`
+  - `markPushNotificationClicked(PushNotification, CallbackListener<Void>)`
+- Each method delegates to ApiConnection for HTTP calls
+- All engagement methods are idempotent
+
+### Step 13: Add API methods to ApiConnection.java
+- [ ] Modify `chat-sdk-android/src/main/java/com/cometchat/chat/core/ApiConnection.java`
+- Add internal methods for each endpoint:
+  - POST `/v3.0/campaigns/notification-feed/{id}/delivered`
+  - POST `/v3.0/campaigns/notification-feed/{id}/read`
+  - POST `/v3/announcements/read`
+  - POST `/v3.0/campaigns/notification-feed/{id}/engagement`
+  - GET `/v3.0/campaigns/notification-feed/unread-count`
+  - GET `/v3/announcements/{id}`
+  - PUT `/v3.0/campaigns/push-notifications/{id}/delivered`
+  - PUT `/v3.0/campaigns/push-notifications/{id}/clicked`
+
+### Step 14: Unit 4 Summary
+- [ ] Create `aidlc-docs/construction/notification-feed/code/unit-4-summary.md`
+
+---
+
+## Unit 5: NotificationFeedListener — WebSocket (ENG-35200)
+
+### Step 15: Create NotificationFeedListener abstract class
+- [ ] Create `chat-sdk-android/src/main/java/com/cometchat/chat/core/NotificationFeedListener.java`
+- Abstract class with: `onFeedItemReceived(NotificationFeedItem feedItem)`
+
+### Step 16: Create NotificationFeedEvent class
+- [ ] Create `chat-sdk-android/src/main/java/com/cometchat/chat/core/CometChatNotificationFeedEvent.java`
+- Extends CometChatEvent
+- Parses WebSocket payload where `type == "notification_feed_item"` and `body.action == "sent"`
+- Extracts `body.feedItem` into NotificationFeedItem
+
+### Step 17: Add listener registration to CometChat.java
+- [ ] Modify `chat-sdk-android/src/main/java/com/cometchat/chat/core/CometChat.java`
+- Add `ConcurrentHashMap<String, NotificationFeedListener> notificationFeedListeners`
+- Add `addNotificationFeedListener(String listenerId, NotificationFeedListener listener)`
+- Add `removeNotificationFeedListener(String listenerId)`
+
+### Step 18: Add dispatch logic to DispatchController.java
+- [ ] Modify `chat-sdk-android/src/main/java/com/cometchat/chat/core/DispatchController.java`
+- Add handling for `type == "notification_feed_item"` WebSocket messages
+- Parse into CometChatNotificationFeedEvent
+- Dispatch to all registered NotificationFeedListeners on main thread
+- Skip malformed payloads with warning log
+
+### Step 19: Unit 5 Summary
+- [ ] Create `aidlc-docs/construction/notification-feed/code/unit-5-summary.md`
+
+---
+
+## Post-Generation
+
+### Step 20: Final verification
+- [ ] Verify all files compile (no syntax errors)
+- [ ] Verify no duplicate files created
+- [ ] Verify all constants referenced correctly
+- [ ] Update aidlc-state.md
+
+---
+
+## File Summary
+
+### New Files (11)
+1. `chat-sdk-android/src/main/java/com/cometchat/chat/enums/FeedEngagementType.java`
+2. `chat-sdk-android/src/main/java/com/cometchat/chat/enums/FeedReadState.java`
+3. `chat-sdk-android/src/main/java/com/cometchat/chat/models/NotificationFeedItem.java`
+4. `chat-sdk-android/src/main/java/com/cometchat/chat/models/NotificationCategory.java`
+5. `chat-sdk-android/src/main/java/com/cometchat/chat/models/PushNotification.java`
+6. `chat-sdk-android/src/main/java/com/cometchat/chat/core/NotificationFeedRequest.java`
+7. `chat-sdk-android/src/main/java/com/cometchat/chat/core/NotificationCategoriesRequest.java`
+8. `chat-sdk-android/src/main/java/com/cometchat/chat/core/NotificationFeedListener.java`
+9. `chat-sdk-android/src/main/java/com/cometchat/chat/core/CometChatNotificationFeedEvent.java`
+
+### Modified Files (4)
+10. `chat-sdk-android/src/main/java/com/cometchat/chat/constants/CometChatConstants.java` — add key constants
+11. `chat-sdk-android/src/main/java/com/cometchat/chat/core/CometChat.java` — add static methods + listener registration
+12. `chat-sdk-android/src/main/java/com/cometchat/chat/core/ApiConnection.java` — add API endpoint methods
+13. `chat-sdk-android/src/main/java/com/cometchat/chat/core/DispatchController.java` — add WebSocket dispatch
+
+### Documentation (5)
+14–18. Unit summary markdown files in `aidlc-docs/construction/notification-feed/code/`
