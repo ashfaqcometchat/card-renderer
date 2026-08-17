@@ -26,3 +26,5 @@ rootProject.name = "card-renderer-android"
 include(":app-compose")
 include(":app-xml")
 include(":cards")
+include(":sample-app-kotlin-push")
+include(":sample-app-compose-push")
