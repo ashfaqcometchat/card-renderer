@@ -54,7 +54,7 @@ tasks.withType<Test> {
 dependencies {
 
     implementation(project(":chatuikit-compose"))
-    implementation(project(":chatuikit-core"))
+    implementation(libs.chatuikit.core.android)
     implementation(libs.chat.sdk.android)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

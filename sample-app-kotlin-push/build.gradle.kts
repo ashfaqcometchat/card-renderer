@@ -51,7 +51,7 @@ android {
 
 dependencies {
     implementation(project(":chatuikit-kotlin"))
-    implementation(project(":chatuikit-core"))
+    implementation(libs.chatuikit.core.android)
     implementation(libs.chat.sdk.android)
     implementation(libs.androidx.core.ktx)
     implementation(libs.appcompat)

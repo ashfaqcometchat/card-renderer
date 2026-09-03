@@ -25,9 +25,9 @@ object MessageListComposeTestHelper {
 
     private const val TAG = "MessageListTestHelper"
 
-    private const val APP_ID = "278059f315a564b4"
-    private const val AUTH_KEY = "5bb2416b7eb003c1f94234c26178a4b053c66b97"
-    private const val REGION = "in"
+    private const val APP_ID = "XXXXXXXXX"
+    private const val AUTH_KEY = "XXXXXXXXX"
+    private const val REGION = "XXXXXXXXX"
     private const val LOGIN_UID = "cometchat-uid-2"
 
     @Volatile

@@ -39,7 +39,7 @@ android {
 dependencies {
     // CometChat v6 UIKit
     implementation(project(":chatuikit-kotlin"))
-    implementation(project(":chatuikit-core"))
+    implementation(libs.chatuikit.core.android)
 
     // CometChat Chat SDK
     implementation(libs.chat.sdk.android)

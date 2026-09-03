@@ -49,7 +49,7 @@ dependencies {
 //    implementation(libs.chatuikit.compose.android)
 
     implementation(project(":chatuikit-compose"))
-    implementation(project(":chatuikit-core"))
+    implementation(libs.chatuikit.core.android)
 
     // CometChat SDKs
     implementation(libs.chat.sdk.android)

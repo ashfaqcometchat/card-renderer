@@ -44,7 +44,7 @@ android {
 dependencies {
     // CometChat v6 Compose UIKit
     implementation(project(":chatuikit-compose"))
-    implementation(project(":chatuikit-core"))
+    implementation(libs.chatuikit.core.android)
 
     // CometChat Chat SDK (no calls SDK — text-only AI chat)
     implementation(libs.chat.sdk.android)

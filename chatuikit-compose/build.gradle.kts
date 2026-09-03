@@ -79,7 +79,6 @@ roborazzi {
 dependencies {
     // Core module – exposed so consumers get ViewModels transitively (published artifact)
     implementation(libs.chatuikit.core.android)
-    // implementation(project(":chatuikit-core"))
 
     // CometChat SDK
     implementation(libs.chat.sdk.android)

@@ -3,12 +3,12 @@
   <groupId>com.cometchat</groupId>
   <artifactId>chatuikit-compose-android</artifactId>
   <versioning>
-    <latest>6.0.4-citest.2</latest>
-    <release>6.0.4-citest.2</release>
+    <latest>6.0.7-citest.7</latest>
+    <release>6.0.7-citest.7</release>
     <versions>
       <version>6.0.0-beta.1</version>
-      <version>6.0.4-citest.2</version>
+      <version>6.0.7-citest.7</version>
     </versions>
-    <lastUpdated>20260817125750</lastUpdated>
+    <lastUpdated>20260903053153</lastUpdated>
   </versioning>
 </metadata>

@@ -87,6 +87,7 @@ import com.cometchat.uikit.compose.presentation.shared.baseelements.avatar.Comet
 import com.cometchat.uikit.compose.presentation.imageviewer.ui.CometChatImageViewerActivity
 import com.cometchat.uikit.compose.calls.CometChatCallActivity
 import com.cometchat.uikit.compose.presentation.shared.baseelements.date.CometChatDate
+import com.cometchat.uikit.compose.presentation.shared.baseelements.date.defaultTimePattern
 import com.cometchat.uikit.compose.presentation.shared.baseelements.date.DateStyle
 import com.cometchat.uikit.compose.presentation.shared.baseelements.date.Pattern
 import com.cometchat.uikit.compose.presentation.shared.messagebubble.style.CometChatMessageBubbleStyle
@@ -94,6 +95,7 @@ import com.cometchat.uikit.compose.presentation.shared.messagebubble.style.merge
 import com.cometchat.uikit.compose.presentation.shared.messagepreview.CometChatMessagePreview
 import com.cometchat.uikit.compose.presentation.shared.messagepreview.CometChatMessagePreviewStyle
 import com.cometchat.uikit.compose.presentation.shared.receipts.CometChatReceipts
+import com.cometchat.uikit.compose.presentation.shared.receipts.CometChatReceiptsStyle
 import com.cometchat.uikit.compose.presentation.shared.receipts.MessageReceiptUtils
 import com.cometchat.uikit.compose.theme.CometChatTheme
 import com.cometchat.uikit.core.CometChatUIKit
@@ -1768,7 +1770,7 @@ internal object InternalContentRenderer {
                 CometChatDate(
                     timestamp = message.sentAt,
                     pattern = Pattern.TIME,
-                    timePattern = timeFormat ?: "h:mm a",
+                    timePattern = timeFormat ?: defaultTimePattern(),
                     customDateString = customDateString,
                     modifier = if (shouldShowName) Modifier.padding(start = 5.dp) else Modifier
                 )
@@ -1796,6 +1798,9 @@ internal object InternalContentRenderer {
      * @param hideReceipts When true, hides the receipt indicator regardless of message state
      * @param timeFormat Optional custom time format pattern (e.g. "HH:mm") for the timestamp
      * @param dateTimeFormatter Optional callback for advanced timestamp formatting; takes sentAt (seconds) and returns formatted string
+     * @param receiptStyle Optional receipt style that takes precedence over [style]'s
+     *   `messageReceiptStyle`. Per-bubble-type styles cannot carry `messageReceiptStyle`, so the
+     *   caller passes the base bubble style's value when a content style has been merged in.
      */
     @Composable
     fun DefaultStatusInfoView(
@@ -1806,7 +1811,8 @@ internal object InternalContentRenderer {
         showTime: Boolean = true,
         hideReceipts: Boolean = false,
         timeFormat: String? = null,
-        dateTimeFormatter: ((Long) -> String)? = null
+        dateTimeFormatter: ((Long) -> String)? = null,
+        receiptStyle: CometChatReceiptsStyle? = null
     ) {
         val shouldHideReceipt = hideReceipts || MessageReceiptUtils.shouldHideReceipt(message)
         val receipt = MessageReceiptUtils.getMessageReceipt(message)
@@ -1858,7 +1864,7 @@ internal object InternalContentRenderer {
                 CometChatDate(
                     timestamp = message.sentAt,
                     pattern = Pattern.TIME,
-                    timePattern = timeFormat ?: "h:mm a",
+                    timePattern = timeFormat ?: defaultTimePattern(),
                     customDateString = customDateString,
                     style = DateStyle.default(
                         textColor = style.timestampTextColor,
@@ -1869,9 +1875,10 @@ internal object InternalContentRenderer {
             if (showReceipt && !shouldHideReceipt) {
                 CometChatReceipts(
                     receipt = receipt,
-                    modifier = Modifier
-                        .padding(start = 4.dp)
-                        .size(16.dp)
+                    modifier = Modifier.padding(start = 4.dp),
+                    style = receiptStyle
+                        ?: style.messageReceiptStyle
+                        ?: CometChatReceiptsStyle.default()
                 )
             }
         }

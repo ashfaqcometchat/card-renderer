@@ -82,7 +82,6 @@ configurations.all {
 dependencies {
     // Core module – shared ViewModels and business logic (published artifact)
     implementation(libs.chatuikit.core.android)
-    // implementation(project(":chatuikit-core"))
     // CometChat SDK
     implementation(libs.chat.sdk.android)
     compileOnly(libs.calls.sdk.android)
