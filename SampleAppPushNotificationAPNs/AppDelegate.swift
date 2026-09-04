@@ -41,7 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             providerId: AppConstants.PROVIDER_ID,
             enableBadgeCount: true,
             showInAppNotifications: true,
-            showInAppVoIP: true
+            foregroundCallPresentation: .inApp
         )
         CometChatPushNotifications.shared.initialize(config: config)
         CometChatPushNotifications.shared.delegate = self

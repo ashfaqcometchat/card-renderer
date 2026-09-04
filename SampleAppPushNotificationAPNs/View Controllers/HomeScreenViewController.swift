@@ -314,13 +314,10 @@ class HomeScreenViewController: UITabBarController {
     
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
         let menu = UIMenu(title: "\(appVersion ?? "v5.0.0")", children: [
-            UIAction(title: "CREATE_CONVERSATION".localize(), image: UIImage(systemName: "plus.bubble.fill"), handler: { _ in
+            UIAction(title: "CREATE_CONVERSATION".localize(), image: UIImage(systemName: "plus.bubble"), handler: { _ in
                 let startNewConversationNVC = CreateConversationVC()
                 startNewConversationNVC.hidesBottomBarWhenPushed = true
                 self.navigationController?.pushViewController(startNewConversationNVC, animated: true)
-            }),
-            UIAction(title: "AI_AGENTS".localize(), image: UIImage(systemName: "sparkles"), handler: { [weak self] _ in
-                self?.openAIAgents()
             }),
             UIAction(title: "\(CometChat.getLoggedInUser()?.name ?? "")", image: UIImage(systemName: "person.circle"), handler: { _ in
 
@@ -382,45 +379,38 @@ class HomeScreenViewController: UITabBarController {
         presentViewControllerBottomSheet(from: self, to: vc, height: 356)
     }
     
-    private func openAIAgents() {
-        let agenticUsersRequestBuilder = UsersRequest.UsersRequestBuilder()
-            .set(limit: 30)
-            .set(roles: ["@agentic"])
-        
-        let aiAgentsVC = CometChatUsers(usersRequestBuilder: agenticUsersRequestBuilder)
-        aiAgentsVC.title = "AI_AGENTS".localize()
-        aiAgentsVC.hidesBottomBarWhenPushed = true
-        
-        // Configure navigation bar and search bar to match Users tab UI
-        aiAgentsVC.hideNavigationBar = false
-        aiAgentsVC.hideBackButton = false
-        aiAgentsVC.prefersLargeTitles = true
-        aiAgentsVC.searchController.hidesNavigationBarDuringPresentation = false
-        
-        // Custom back button action to return to home screen
-        aiAgentsVC.set(onBack: { [weak self] in
-            self?.navigationController?.setNavigationBarHidden(true, animated: true)
-            self?.navigationController?.popViewController(animated: true)
+    
+    lazy var notifications: CometChatNotificationFeed = {
+        let feed = CometChatNotificationFeed()
+        feed.set(showBackButton: false)
+        feed.set(onItemClick: { [weak self] feedItem in
         })
-        
-        aiAgentsVC.set(onItemClick: { [weak self] user, _ in
-            let messages = MessagesVC()
-            messages.user = user
-            if let splitScreenCallBack = self?.splitScreenCallBack {
-                splitScreenCallBack(messages)
-            } else {
-                self?.navigationController?.pushViewController(messages, animated: true)
+        feed.set(onActionClick: { [weak self] feedItem, actionEvent in
+            guard let self = self else { return }
+            
+            // Report engagement on any button click
+            CometChat.reportFeedEngagement(feedItem, interactionString: "button_clicked", onSuccess: {
+            }, onError: { error in
+            })
+            
+            // Show toast with action details
+            switch actionEvent.action {
+            case .openUrl(let url, let label):
+                let toastMessage = "Action: openUrl\nLabel: \(label ?? "N/A")\nURL: \(url)"
+                self.showToast(message: toastMessage)
+                
+                if let linkURL = URL(string: url) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        UIApplication.shared.open(linkURL)
+                    }
+                }
+            default:
+                let toastMessage = "Action: \(actionEvent.action)"
+                self.showToast(message: toastMessage)
             }
         })
-        
-        if let splitScreenCallBack {
-            splitScreenCallBack(aiAgentsVC)
-        } else {
-            // Show navigation bar before pushing
-            self.navigationController?.setNavigationBarHidden(false, animated: true)
-            navigationController?.pushViewController(aiAgentsVC, animated: true)
-        }
-    }
+        return feed
+    }()
     
     private func showToast(message: String) {
         guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) else { return }
@@ -486,19 +476,25 @@ class HomeScreenViewController: UITabBarController {
 
         groups.tabBarItem = UITabBarItem(title: "GROUPS".localize(), image: UIImage(systemName: "person.2"), tag: 1)
         groups.tabBarItem.selectedImage = UIImage(systemName: "person.2.fill")
-
+        
+        notifications.tabBarItem = UITabBarItem(title: "Notifications", image: UIImage(systemName: "bell"), tag: 4)
+        notifications.tabBarItem.selectedImage = UIImage(systemName: "bell.fill")
+        
+        
         #if canImport(CometChatCallsSDK)
         viewControllers = [
             UINavigationController(rootViewController: conversations),
             UINavigationController(rootViewController: calls),
             UINavigationController(rootViewController: users),
             UINavigationController(rootViewController: groups),
+            UINavigationController(rootViewController: notifications),
         ]
         #else
         viewControllers = [
             UINavigationController(rootViewController: conversations),
             UINavigationController(rootViewController: users),
             UINavigationController(rootViewController: groups),
+            UINavigationController(rootViewController: notifications),
         ]
         #endif
         

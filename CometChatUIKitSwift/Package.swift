@@ -1,19 +1,40 @@
 // swift-tools-version:5.3
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
 import PackageDescription
 
 let package = Package(
     name: "CometChatUIKitSwift",
     platforms: [
-        .iOS(.v13)
+        .iOS("15.1")
     ],
     products: [
-        .library(name: "CometChatUIKitSwift", targets: ["CometChatUIKitSwift"])
+        // Both targets ship in the one product: the prebuilt UIKit binary plus a
+        // wrapper target that exists only to pull in CometChatCardsSwift (a binary
+        // target cannot declare dependencies itself). Linking the product gives
+        // consumers the Cards module automatically — UIKit's public API exposes
+        // Cards types (e.g. CometChatCardActionEvent), so it is required to compile.
+        .library(name: "CometChatUIKitSwift", targets: ["CometChatUIKitSwift", "CometChatUIKitSwiftDependencies"])
+    ],
+    dependencies: [
+        // Floor is 1.2.0 (ENG-37757): 1.1.0 crashes at launch on iOS 16/17, and 1.1.1
+        // fixed that but shipped static — which merged Cards into every consumer's link
+        // and duplicated its classes. 1.2.0 ships dynamic. Raising the floor forces SPM
+        // consumers whose Package.resolved still pins an older version onto the fix.
+        .package(name: "CometChatCardsSwift", url: "https://github.com/cometchat/cards-sdk-ios.git", from: "1.2.0")
     ],
     targets: [
         .binaryTarget(
             name: "CometChatUIKitSwift",
-            url: "https://dl.cloudsmith.io/public/cometchat/call-team/raw/versions/5.1.16-citest.5/CometChatUIKitSwift_5.1.16-citest.5.xcframework.zip",
-            checksum: "d2bbd8f4dbc9fb97d528dba69b660c801c8c9b3f7e7166cd37d83e5a39987bb4"
+            url: "https://dl.cloudsmith.io/public/cometchat/call-team/raw/versions/5.1.21-citest.18/CometChatUIKitSwift_5.1.21-citest.18.xcframework.zip",
+            checksum: "afb9b1fb7b7375490577943304d0fae40c724091964cc027a75ab95b53d4c892"
+        ),
+        .target(
+            name: "CometChatUIKitSwiftDependencies",
+            dependencies: [
+                .product(name: "CometChatCardsSwift", package: "CometChatCardsSwift")
+            ],
+            path: "Sources/CometChatUIKitSwiftDependencies"
         )
     ]
 )

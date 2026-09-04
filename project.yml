@@ -1,5 +1,4 @@
 # Merged public-repo project — generated/owned by the release CI.
-# Two sample-app targets (basic SampleApp dropped by decision).
 # UIKit is consumed as the RELEASED binary via the local CometChatUIKitSwift
 # package (its Package.swift binaryTarget is rewritten with each release's
 # url + checksum). All targets therefore share ONE package graph.
@@ -25,10 +24,18 @@ packages:
     url: https://github.com/cometchat/calls-sdk-ios.git
     from: "5.0.1"
   CometChatCardsSwift:
-    path: LocalPackages/CometChatCardsSwift   # released UIKit imports CometChatCardsSwift
+    url: https://github.com/cometchat/cards-sdk-ios.git
+    exactVersion: "1.2.0"            # released UIKit imports CometChatCardsSwift; public SPM package
+                                     # Must stay >= 1.2.0 (ENG-37757): 1.1.0's binary was built at
+                                     # deployment target 26.2 and references an iOS-18-only Foundation
+                                     # symbol, so it crashes at launch on iOS 16/17. 1.1.1 fixed that
+                                     # but shipped STATIC, which merged Cards into every consumer's
+                                     # link and duplicated its classes; 1.2.0 ships dynamic.
   CometChatPushNotifications:
-    url: https://github.com/cometchat-team/push-notifications-sdk-ios.git
-    exactVersion: "0.1.0"
+    # Public release repo (binaryTarget -> Cloudsmith xcframework). Never point this
+    # at the private cometchat-team dev repo — public consumers can't clone it.
+    url: https://github.com/cometchat/push-notifications-sdk-ios.git
+    exactVersion: "1.0.0"
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk.git
     from: "10.16.0"                  # Google login (FirebaseAuth)
@@ -42,8 +49,12 @@ targets:
     type: application
     platform: iOS
     deploymentTarget: "15.1"
+    # E2ETests/ ships inside SampleApp/ so the suite travels with the app. Excluded from the
+    # app target because XcodeGen globs the path — without this the app would try to compile
+    # the test files and fail on `import XCTest`. The SampleAppUITests target claims them below.
     sources:
       - path: SampleApp
+        excludes: [ "E2ETests/**" ]
     dependencies:
       - package: CometChatUIKitSwift
       - package: CometChatCallsSDK
@@ -74,6 +85,31 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         IPHONEOS_DEPLOYMENT_TARGET: "15.1"
 
+  # ── E2E UI tests for SampleApp — see SampleApp/E2ETests/README.md ──
+  # Sources ship inside SampleApp/E2ETests. CometChatSDK is the only SDK dependency:
+  # Helpers/SecondClient.swift drives a live second-user session in the runner process.
+  # Deliberately does NOT depend on CometChatCardsSwift — Cards is a static xcframework
+  # already absorbed into the CometChatUIKitSwift binary, so linking it again would
+  # duplicate every Cards class.
+  SampleAppUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "15.1"
+    sources:
+      - path: SampleApp/E2ETests
+    dependencies:
+      - target: SampleApp
+      - package: CometChatSDK
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.cometchat.sampleapp.ios.uitests
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGN_STYLE: Automatic
+        TEST_TARGET_NAME: SampleApp
+        GENERATE_INFOPLIST_FILE: YES
+        TARGETED_DEVICE_FAMILY: "1,2"
+        IPHONEOS_DEPLOYMENT_TARGET: "15.1"
+
   # ── AI Agents sample ──
   AISampleApp:
     type: application
@@ -84,6 +120,7 @@ targets:
     dependencies:
       - package: CometChatUIKitSwift
       - package: CometChatSDK
+      - package: CometChatCallsSDK
       - package: CometChatCardsSwift
       - package: Firebase
         product: FirebaseAuth

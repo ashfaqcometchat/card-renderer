@@ -210,7 +210,7 @@ class MessagesVC: UIViewController {
             self.targetMessageId = nil
         }
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self // for swipe back gesture
         self.navigationController?.setNavigationBarHidden(true, animated: true)

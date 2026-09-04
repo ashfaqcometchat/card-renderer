@@ -13,7 +13,6 @@ class AppConstants {
     static var APP_ID: String = "XXXXXXXXX"
     static var AUTH_KEY: String = "XXXXXXXXX"
     static var REGION: String = "XXXXXXXXX"
-    static var PROVIDER_ID: String = "XXXXXXXXX"
 }
 
 extension AppConstants{

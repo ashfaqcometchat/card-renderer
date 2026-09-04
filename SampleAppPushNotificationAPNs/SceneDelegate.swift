@@ -120,8 +120,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 .set(authKey: AppConstants.AUTH_KEY)
                 .set(region: AppConstants.REGION)
                 .subscribePresenceForAllUsers()
-//                .overrideAdminHost("\(AppConstants.APP_ID).api-\(AppConstants.REGION).cometchat-staging.com")
-//                .overrideClientHost("\(AppConstants.APP_ID).apiclient-\(AppConstants.REGION).cometchat-staging.com")
                 .enable(inAppIncomingCall: false)
                 .build()
             

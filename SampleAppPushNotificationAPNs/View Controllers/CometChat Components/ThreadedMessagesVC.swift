@@ -42,19 +42,21 @@ class ThreadedMessagesVC: UIViewController {
         return messageListView
     }()
     
-    lazy var composerView: CometChatMessageComposer = {
-        let messageComposer = CometChatMessageComposer(frame: .null)
-
+    lazy var composerView: CometChatCompactMessageComposer = {
+        let messageComposer = CometChatCompactMessageComposer(frame: .null)
+        
         //Checking for the group or other user
         if let group = parentMessage?.receiver as? Group {
             messageComposer.set(group: group)
         } else if let user = (parentMessage?.senderUid == CometChat.getLoggedInUser()?.uid ? parentMessage?.receiver : parentMessage?.sender) as? User {
             messageComposer.set(user: user)
         }
-
+        
         messageComposer.set(parentMessageId: parentMessage?.id ?? 0)
         messageComposer.set(controller: self)
         messageComposer.translatesAutoresizingMaskIntoConstraints = false
+        messageComposer.enableRichTextFormatting = true
+        messageComposer.showRichTextFormattingOptions = true
         return messageComposer
     }()
     
